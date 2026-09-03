@@ -1,0 +1,14 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+src-tauri/target
+src-tauri/gen/schemas
+
+# Vendored from node_modules by scripts/sync-pdfjs-assets.mjs (postinstall)
+public/pdfjs
+tests/fixtures
+tests/screenshots
+test-results
+playwright-report

@@ -1,0 +1,243 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant light (&:where(.light, .light *));
+
+/* Palette lifted from FFkit's warm-neutral system (same token names, same
+   light/dark flip mechanics) with a vermilion accent instead of the green, so
+   the two apps read as a family without looking like the same tool. */
+@theme {
+  --color-accent: #C4502E;
+  --color-surface: #232320;
+  --color-muted: #87867E;
+  --color-subtle: #C0BFB5;
+
+  --color-bg: #1A1A18;
+  --color-fg: #C0BFB5;
+  --color-surface-2: #141412;
+
+  --color-badge-fg: #e0a48f;
+  --color-badge-bg: #40241b;
+
+  --color-border-subtle: rgb(255 255 255 / 5%);
+  --color-border-soft:   rgb(255 255 255 / 8%);
+  --color-border:        rgb(255 255 255 / 10%);
+  --color-border-strong: rgb(255 255 255 / 15%);
+  --color-border-hover:  rgb(255 255 255 / 20%);
+
+  --color-elevate-1: rgb(255 255 255 / 3%);
+  --color-elevate-2: rgb(255 255 255 / 5%);
+  --color-elevate-3: rgb(255 255 255 / 8%);
+  --color-elevate-4: rgb(255 255 255 / 10%);
+  --color-elevate-5: rgb(255 255 255 / 15%);
+  --color-elevate-6: rgb(255 255 255 / 20%);
+
+  /* Page thumbnails always sit on white paper, whatever the app theme. */
+  --color-paper: #ffffff;
+
+  --font-serif: "Sirba", Georgia, "Times New Roman", serif;
+  --font-sans: "PP Mori", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* Light theme — applied when `.light` is on <html> (see settingsContext). The
+   @theme block above holds the dark defaults; this overrides the same variables
+   so every bg-bg / text-fg / bg-elevate-N utility follows without markup churn.
+   `--color-accent` is intentionally left as-is. */
+:root.light {
+  --color-surface: #faf9f6;
+  --color-surface-2: #e9e8e3;
+  --color-muted: #76756d;
+  --color-subtle: #4f4e47;
+
+  --color-bg: #f1f0ec;
+  --color-fg: #232320;
+
+  --color-badge-fg: #7a2e19;
+  --color-badge-bg: #f2d9d0;
+
+  --color-border-subtle: rgb(0 0 0 / 5%);
+  --color-border-soft:   rgb(0 0 0 / 7%);
+  --color-border:        rgb(0 0 0 / 10%);
+  --color-border-strong: rgb(0 0 0 / 13%);
+  --color-border-hover:  rgb(0 0 0 / 20%);
+
+  --color-elevate-1: rgb(0 0 0 / 3%);
+  --color-elevate-2: rgb(0 0 0 / 5%);
+  --color-elevate-3: rgb(0 0 0 / 7%);
+  --color-elevate-4: rgb(0 0 0 / 9%);
+  --color-elevate-5: rgb(0 0 0 / 12%);
+  --color-elevate-6: rgb(0 0 0 / 16%);
+
+  color-scheme: light;
+}
+
+/* Smooth the light<->dark flip. Added to <html> only for ~250ms during a theme
+   switch, so normal hovers/state changes stay instant. */
+.theme-transition,
+.theme-transition * {
+  transition: background-color 350ms linear, color 350ms linear,
+    border-color 350ms linear;
+}
+
+/* Bundled fonts live in public/assets/fonts/ and ship inside the Tauri build.
+   Deliberately no local(...) sources so rendering never depends on which cut of
+   the family happens to be installed on the machine. */
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/assets/fonts/GeistMono-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Sirba";
+  src: url("/assets/fonts/Sirba-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Mori";
+  src: url("/assets/fonts/PPMori-Extralight.otf") format("opentype");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Mori";
+  src: url("/assets/fonts/PPMori-ExtralightItalic.otf") format("opentype");
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Mori";
+  src: url("/assets/fonts/PPMori-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Mori";
+  src: url("/assets/fonts/PPMori-RegularItalic.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Mori";
+  src: url("/assets/fonts/PPMori-SemiBold.otf") format("opentype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Mori";
+  src: url("/assets/fonts/PPMori-SemiBoldItalic.otf") format("opentype");
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Panels, cards and menus arrive rather than appear: a short rise from a few
+   pixels down, on the same easing everywhere so the app has one movement. The
+   `both` fill matters — without it the first frame is the finished state and
+   the animation reads as a flicker. */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+.animate-rise {
+  animation: rise 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* For things that come from a click on a specific spot (menus, dialogs): a
+   scale rather than a slide, so they read as growing out of the gesture. */
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+.animate-pop {
+  animation: pop 160ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animate-fade {
+  animation: fade 160ms linear both;
+}
+
+/* Indeterminate sweep for jobs whose progress can't be measured up front. */
+@keyframes bar-sweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+.animate-sweep {
+  animation: bar-sweep 1.4s ease-in-out infinite;
+}
+
+@layer base {
+  * {
+    scrollbar-width: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
+  html {
+    font-family: "PP Mori", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    color-scheme: dark;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  button {
+    cursor: pointer;
+  }
+}
+
+/* The press: every button dips very slightly under the pointer, which is what
+   makes a click feel connected to what follows it. Kept to 2% — enough to feel,
+   not enough to read as a bounce.
+
+   Deliberately unlayered and written as `button:not(:disabled)`: a Tailwind
+   utility like `transition-colors` sets transition-property on the element and
+   would otherwise drop the transform, leaving the dip to snap. One specificity
+   step above a single class is all it takes to win. */
+button:not(:disabled) {
+  transition-property: transform, color, background-color, border-color, opacity;
+  transition-duration: 140ms;
+  transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+/* The caption controls sit flush against the window edge; scaling them would
+   break that seam. */
+button[data-flat]:active:not(:disabled) {
+  transform: none;
+}
+
+/* Someone who has asked their system for less movement gets none of it: the
+   interface still changes, it just stops travelling to get there. Unlayered and
+   last, so it outranks the animation utilities above. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-pop,
+  .animate-fade,
+  .animate-sweep {
+    animation-duration: 1ms;
+  }
+  button:active:not(:disabled) {
+    transform: none;
+  }
+}

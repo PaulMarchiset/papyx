@@ -1,0 +1,255 @@
+{
+  "common": {
+    "run": "Run",
+    "running": "Working…",
+    "back": "Back",
+    "settings": "Settings",
+    "addFiles": "Add files",
+    "remove": "Remove",
+    "clear": "Remove all",
+    "save": "Save",
+    "saveAll": "Save all",
+    "reveal": "Show in folder",
+    "pages_one": "{{count}} page",
+    "pages_other": "{{count}} pages",
+    "files_one": "{{count}} file",
+    "files_other": "{{count}} files",
+    "changeFile": "Change file",
+    "cancel": "Cancel",
+    "rerun": "Run again",
+    "apply": "Apply",
+    "close": "Close"
+  },
+  "home": {
+    "tagline": "Every PDF chore, done on your own machine.",
+    "subtitle": "No upload, no account, no connection. Your documents never leave this computer.",
+    "trayTitle": "Waiting files",
+    "trayHint": "Pick a tool — it will start with these files.",
+    "dropHint": "Drop PDFs or images anywhere"
+  },
+  "tools": {
+    "images-to-pdf": {
+      "name": "Images → PDF",
+      "desc": "Turn JPG, PNG or WebP files into one document."
+    },
+    "merge": {
+      "name": "Merge",
+      "desc": "Join several PDFs end to end."
+    },
+    "split": {
+      "name": "Split",
+      "desc": "Cut a PDF into several files."
+    },
+    "organize": {
+      "name": "Organize",
+      "desc": "Reorder, rotate or delete pages."
+    },
+    "pdf-to-images": {
+      "name": "PDF → Images",
+      "desc": "Export every page as PNG, JPG or WebP."
+    },
+    "compress": {
+      "name": "Compress",
+      "desc": "Shrink a heavy PDF."
+    },
+    "watermark": {
+      "name": "Watermark",
+      "desc": "Stamp text across the pages."
+    },
+    "page-numbers": {
+      "name": "Page numbers",
+      "desc": "Add page numbers."
+    },
+    "extract-text": {
+      "name": "Extract text",
+      "desc": "Pull the text out into a .txt file."
+    },
+    "metadata": {
+      "name": "Metadata",
+      "desc": "Read and edit title, author, keywords."
+    },
+    "needs": {
+      "pdf": "This tool takes PDFs",
+      "image": "This tool takes images"
+    }
+  },
+  "dropzone": {
+    "idlePdf": "Drop a PDF here, or click to browse",
+    "idlePdfs": "Drop your PDFs here, or click to browse",
+    "idleImages": "Drop your images here, or click to browse",
+    "active": "Release to add",
+    "reading": "Reading…",
+    "idleAny": "Drop PDFs or images here, or click to browse"
+  },
+  "files": {
+    "locked": "Password protected",
+    "password": "Password",
+    "passwordHint": "Needed to read this document.",
+    "lockedStructural": "This file is encrypted, so this tool cannot edit it. Run it through “Compress” or “PDF → Images” with the password to get a workable copy.",
+    "unsupported": "Unsupported format: {{name}}",
+    "pickHint": "click a document to work on it",
+    "ignoredImages_one": "{{count}} image set aside: this tool only takes PDFs.",
+    "ignoredImages_other": "{{count}} images set aside: this tool only takes PDFs.",
+    "ignoredPdfs_one": "{{count}} PDF set aside: this tool only takes images.",
+    "ignoredPdfs_other": "{{count}} PDFs set aside: this tool only takes images."
+  },
+  "options": {
+    "pageSize": "Page size",
+    "pageSizeAuto": "Match the image",
+    "orientation": "Orientation",
+    "auto": "Automatic",
+    "portrait": "Portrait",
+    "landscape": "Landscape",
+    "margin": "Margin (mm)",
+    "outputName": "File name",
+    "mode": "Split by",
+    "modeRanges": "Ranges",
+    "modeEvery": "Every N pages",
+    "modeEach": "One file per page",
+    "modeExtract": "Extract a selection",
+    "ranges": "Ranges",
+    "every": "Pages per file",
+    "pages": "Pages",
+    "format": "Format",
+    "dpi": "Resolution (DPI)",
+    "quality": "Quality",
+    "grayscale": "Grayscale",
+    "preset": "Level",
+    "presetLight": "Light",
+    "presetBalanced": "Balanced",
+    "presetStrong": "Strong",
+    "text": "Text",
+    "fontSize": "Size",
+    "opacity": "Opacity",
+    "angle": "Angle",
+    "color": "Colour",
+    "layout": "Layout",
+    "layoutCenter": "Centered",
+    "layoutTile": "Tiled",
+    "position": "Position",
+    "topLeft": "Top left",
+    "topCenter": "Top center",
+    "topRight": "Top right",
+    "bottomLeft": "Bottom left",
+    "bottomCenter": "Bottom center",
+    "bottomRight": "Bottom right",
+    "numberFormat": "Format",
+    "startAt": "Start at",
+    "pageMarkers": "Page separators",
+    "title": "Title",
+    "author": "Author",
+    "subject": "Subject",
+    "keywords": "Keywords",
+    "creator": "Creator",
+    "producer": "Producer",
+    "createdOn": "Created",
+    "modifiedOn": "Modified",
+    "presets": "Presets",
+    "dpiHint": "Lower is smaller — and blurrier.",
+    "grayscaleHint": "A real win on colour scans."
+  },
+  "organize": {
+    "selected_one": "{{count}} page selected",
+    "selected_other": "{{count}} pages selected",
+    "selectAll": "Select all",
+    "selectNone": "Clear selection",
+    "rotateLeft": "Rotate left",
+    "rotateRight": "Rotate right",
+    "delete": "Delete",
+    "restore": "Restore all",
+    "moveLeft": "Move earlier",
+    "moveRight": "Move later",
+    "deleted": "Deleted",
+    "loading": "Rendering previews…",
+    "remaining_one": "{{count}} page kept",
+    "remaining_other": "{{count}} pages kept"
+  },
+  "result": {
+    "title": "Result",
+    "outputs_one": "{{count}} file produced",
+    "outputs_other": "{{count}} files produced",
+    "savedTo": "Saved to {{path}}",
+    "savedAs": "Saved: {{path}}",
+    "downloaded": "Downloaded by the browser, to its downloads folder.",
+    "again": "Run again",
+    "empty": "No file produced.",
+    "chain": "Continue with",
+    "chainWith": "Continue with {{tool}}",
+    "notSaved": "These files are not saved yet.",
+    "notSavedHint_one": "Save will ask you where to put it.",
+    "notSavedHint_other": "Save will ask which folder to put the {{count}} files in.",
+    "chooseFolder": "Where should the produced files go?"
+  },
+  "errors": {
+    "noFiles": "Add at least one file.",
+    "noText": "This PDF has no text layer — it is most likely a scan.",
+    "emptyText": "Type some text.",
+    "syntax": "Invalid range. Try 1-3, 5, 9-",
+    "outOfBounds": "Page outside the document ({{count}} pages).",
+    "empty": "Name at least one page.",
+    "passwordRequired": "Password required.",
+    "wrongPassword": "Wrong password.",
+    "encrypted": "Encrypted document: this tool cannot edit it.",
+    "generic": "Processing failed: {{message}}"
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "themeSystem": "System",
+    "themeDark": "Dark",
+    "themeLight": "Light",
+    "language": "Language",
+    "languageSystem": "System",
+    "output": "Output",
+    "about": "About",
+    "aboutLocal": "Papyx does all of its work locally, inside the app window. It makes no network requests.",
+    "version": "Version {{version}}",
+    "saveMode": "Saving",
+    "saveAsk": "Ask every time",
+    "saveAskHint": "A dialog opens on every save.",
+    "saveFixed": "Fixed folder",
+    "saveFixedHint": "Results are written straight into a folder you pick once.",
+    "folder": "Folder",
+    "changeFolder": "Change"
+  },
+  "compress": {
+    "warning": "Pages are re-rendered as images: the file gets smaller, but the text stops being selectable and annotations are lost."
+  },
+  "presets": {
+    "compressLight": "Light",
+    "compressBalanced": "Balanced",
+    "compressStrong": "Strong",
+    "imagesA4": "A4",
+    "imagesA4Margin": "A4 with margin",
+    "imagesFit": "Image size",
+    "rasterScreen": "Screen",
+    "rasterStandard": "Standard",
+    "rasterPrint": "Print",
+    "watermarkConfidential": "Confidential",
+    "watermarkDraft": "Draft",
+    "watermarkDiscreet": "Discreet",
+    "numbersOfTotal": "1 / N",
+    "numbersPlain": "N",
+    "numbersWordy": "Page 1 of N"
+  },
+  "unsaved": {
+    "title": "Unsaved result",
+    "body_one": "{{count}} file was produced but not saved yet. It will be lost.",
+    "body_other": "{{count}} files were produced but not saved yet. They will be lost.",
+    "discard": "Leave without saving",
+    "save": "Save and continue"
+  },
+  "pages": {
+    "all": "All pages",
+    "some": "Selection",
+    "selectAll": "All",
+    "selectNone": "None",
+    "odd": "Odd",
+    "even": "Even",
+    "invert": "Invert",
+    "selected_one": "{{count}} page selected",
+    "selected_other": "{{count}} pages selected",
+    "shiftHint": "Shift-click for a range"
+  }
+}

@@ -1,0 +1,255 @@
+{
+  "common": {
+    "run": "Lancer",
+    "running": "Traitement…",
+    "back": "Retour",
+    "settings": "Réglages",
+    "addFiles": "Ajouter des fichiers",
+    "remove": "Retirer",
+    "clear": "Tout retirer",
+    "save": "Enregistrer",
+    "saveAll": "Tout enregistrer",
+    "reveal": "Ouvrir le dossier",
+    "pages_one": "{{count}} page",
+    "pages_other": "{{count}} pages",
+    "files_one": "{{count}} fichier",
+    "files_other": "{{count}} fichiers",
+    "changeFile": "Changer de fichier",
+    "cancel": "Annuler",
+    "rerun": "Relancer",
+    "apply": "Appliquer",
+    "close": "Fermer"
+  },
+  "home": {
+    "tagline": "Tous vos PDF, traités sur votre machine.",
+    "subtitle": "Aucun envoi, aucun compte, aucune connexion. Vos documents ne quittent jamais cet ordinateur.",
+    "trayTitle": "Fichiers en attente",
+    "trayHint": "Choisissez un outil : il reprendra ces fichiers.",
+    "dropHint": "Déposez des PDF ou des images n'importe où"
+  },
+  "tools": {
+    "images-to-pdf": {
+      "name": "Images → PDF",
+      "desc": "Assemblez JPG, PNG ou WebP en un seul document."
+    },
+    "merge": {
+      "name": "Fusionner",
+      "desc": "Réunissez plusieurs PDF bout à bout."
+    },
+    "split": {
+      "name": "Diviser",
+      "desc": "Découpez un PDF en plusieurs fichiers."
+    },
+    "organize": {
+      "name": "Organiser",
+      "desc": "Réordonnez, pivotez ou supprimez des pages."
+    },
+    "pdf-to-images": {
+      "name": "PDF → Images",
+      "desc": "Exportez chaque page en PNG, JPG ou WebP."
+    },
+    "compress": {
+      "name": "Compresser",
+      "desc": "Réduisez le poids d'un PDF volumineux."
+    },
+    "watermark": {
+      "name": "Filigrane",
+      "desc": "Apposez un texte en travers des pages."
+    },
+    "page-numbers": {
+      "name": "Numéroter",
+      "desc": "Ajoutez des numéros de page."
+    },
+    "extract-text": {
+      "name": "Extraire le texte",
+      "desc": "Récupérez le texte dans un fichier .txt."
+    },
+    "metadata": {
+      "name": "Métadonnées",
+      "desc": "Lisez et modifiez titre, auteur, mots-clés."
+    },
+    "needs": {
+      "pdf": "Cet outil attend des PDF",
+      "image": "Cet outil attend des images"
+    }
+  },
+  "dropzone": {
+    "idlePdf": "Déposez un PDF ici, ou cliquez pour parcourir",
+    "idlePdfs": "Déposez vos PDF ici, ou cliquez pour parcourir",
+    "idleImages": "Déposez vos images ici, ou cliquez pour parcourir",
+    "active": "Relâchez pour ajouter",
+    "reading": "Lecture…",
+    "idleAny": "Déposez vos PDF ou images ici, ou cliquez pour parcourir"
+  },
+  "files": {
+    "locked": "Protégé par mot de passe",
+    "password": "Mot de passe",
+    "passwordHint": "Nécessaire pour lire ce document.",
+    "lockedStructural": "Ce fichier est chiffré : cet outil ne peut pas le modifier. Passez par « Compresser » ou « PDF → Images » avec le mot de passe pour en produire une copie exploitable.",
+    "unsupported": "Format non pris en charge : {{name}}",
+    "pickHint": "cliquez sur un document pour le choisir",
+    "ignoredImages_one": "{{count}} image de côté : cet outil ne traite que des PDF.",
+    "ignoredImages_other": "{{count}} images de côté : cet outil ne traite que des PDF.",
+    "ignoredPdfs_one": "{{count}} PDF de côté : cet outil ne traite que des images.",
+    "ignoredPdfs_other": "{{count}} PDF de côté : cet outil ne traite que des images."
+  },
+  "options": {
+    "pageSize": "Format de page",
+    "pageSizeAuto": "Comme l'image",
+    "orientation": "Orientation",
+    "auto": "Automatique",
+    "portrait": "Portrait",
+    "landscape": "Paysage",
+    "margin": "Marge (mm)",
+    "outputName": "Nom du fichier",
+    "mode": "Découpage",
+    "modeRanges": "Par intervalles",
+    "modeEvery": "Toutes les N pages",
+    "modeEach": "Une page par fichier",
+    "modeExtract": "Extraire une sélection",
+    "ranges": "Intervalles",
+    "every": "Pages par fichier",
+    "pages": "Pages",
+    "format": "Format",
+    "dpi": "Résolution (DPI)",
+    "quality": "Qualité",
+    "grayscale": "Niveaux de gris",
+    "preset": "Niveau",
+    "presetLight": "Léger",
+    "presetBalanced": "Équilibré",
+    "presetStrong": "Fort",
+    "text": "Texte",
+    "fontSize": "Taille",
+    "opacity": "Opacité",
+    "angle": "Inclinaison",
+    "color": "Couleur",
+    "layout": "Disposition",
+    "layoutCenter": "Au centre",
+    "layoutTile": "En mosaïque",
+    "position": "Position",
+    "topLeft": "Haut gauche",
+    "topCenter": "Haut centre",
+    "topRight": "Haut droite",
+    "bottomLeft": "Bas gauche",
+    "bottomCenter": "Bas centre",
+    "bottomRight": "Bas droite",
+    "numberFormat": "Format",
+    "startAt": "Commencer à",
+    "pageMarkers": "Séparateurs de page",
+    "title": "Titre",
+    "author": "Auteur",
+    "subject": "Sujet",
+    "keywords": "Mots-clés",
+    "creator": "Créateur",
+    "producer": "Producteur",
+    "createdOn": "Créé le",
+    "modifiedOn": "Modifié le",
+    "presets": "Préréglages",
+    "dpiHint": "Plus bas, plus léger — et plus flou.",
+    "grayscaleHint": "Gain net sur les scans en couleur."
+  },
+  "organize": {
+    "selected_one": "{{count}} page sélectionnée",
+    "selected_other": "{{count}} pages sélectionnées",
+    "selectAll": "Tout sélectionner",
+    "selectNone": "Tout désélectionner",
+    "rotateLeft": "Pivoter à gauche",
+    "rotateRight": "Pivoter à droite",
+    "delete": "Supprimer",
+    "restore": "Tout restaurer",
+    "moveLeft": "Déplacer avant",
+    "moveRight": "Déplacer après",
+    "deleted": "Supprimée",
+    "loading": "Génération des aperçus…",
+    "remaining_one": "{{count}} page conservée",
+    "remaining_other": "{{count}} pages conservées"
+  },
+  "result": {
+    "title": "Résultat",
+    "outputs_one": "{{count}} fichier produit",
+    "outputs_other": "{{count}} fichiers produits",
+    "savedTo": "Enregistrés dans {{path}}",
+    "savedAs": "Enregistré : {{path}}",
+    "downloaded": "Téléchargés par le navigateur, dans son dossier de téléchargements.",
+    "again": "Nouveau traitement",
+    "empty": "Aucun fichier produit.",
+    "chain": "Continuer avec",
+    "chainWith": "Continuer avec {{tool}}",
+    "notSaved": "Ces fichiers ne sont pas encore enregistrés.",
+    "notSavedHint_one": "« Enregistrer » vous demandera où le placer.",
+    "notSavedHint_other": "« Enregistrer » vous demandera dans quel dossier placer les {{count}} fichiers.",
+    "chooseFolder": "Où enregistrer les fichiers produits ?"
+  },
+  "errors": {
+    "noFiles": "Ajoutez au moins un fichier.",
+    "noText": "Ce PDF ne contient pas de couche texte — c'est probablement un scan.",
+    "emptyText": "Saisissez un texte.",
+    "syntax": "Intervalle invalide. Utilisez par exemple 1-3, 5, 9-",
+    "outOfBounds": "Page hors du document ({{count}} pages).",
+    "empty": "Indiquez au moins une page.",
+    "passwordRequired": "Mot de passe requis.",
+    "wrongPassword": "Mot de passe incorrect.",
+    "encrypted": "Document chiffré : cet outil ne peut pas le modifier.",
+    "generic": "Échec du traitement : {{message}}"
+  },
+  "settings": {
+    "title": "Réglages",
+    "appearance": "Apparence",
+    "theme": "Thème",
+    "themeSystem": "Système",
+    "themeDark": "Sombre",
+    "themeLight": "Clair",
+    "language": "Langue",
+    "languageSystem": "Système",
+    "output": "Sortie",
+    "about": "À propos",
+    "aboutLocal": "Papyx traite tout localement, dans la fenêtre de l'application. Aucune requête réseau n'est effectuée.",
+    "version": "Version {{version}}",
+    "saveMode": "Enregistrement",
+    "saveAsk": "Demander à chaque fois",
+    "saveAskHint": "Une boîte de dialogue s'ouvre à chaque enregistrement.",
+    "saveFixed": "Dossier fixe",
+    "saveFixedHint": "Les résultats sont écrits directement dans un dossier choisi une fois pour toutes.",
+    "folder": "Dossier",
+    "changeFolder": "Modifier"
+  },
+  "compress": {
+    "warning": "Les pages sont re-rendues en images : le fichier s'allège, mais le texte cesse d'être sélectionnable et les annotations disparaissent."
+  },
+  "presets": {
+    "compressLight": "Léger",
+    "compressBalanced": "Équilibré",
+    "compressStrong": "Fort",
+    "imagesA4": "A4",
+    "imagesA4Margin": "A4 avec marge",
+    "imagesFit": "Format de l'image",
+    "rasterScreen": "Écran",
+    "rasterStandard": "Standard",
+    "rasterPrint": "Impression",
+    "watermarkConfidential": "Confidentiel",
+    "watermarkDraft": "Brouillon",
+    "watermarkDiscreet": "Discret",
+    "numbersOfTotal": "1 / N",
+    "numbersPlain": "N",
+    "numbersWordy": "Page 1 sur N"
+  },
+  "unsaved": {
+    "title": "Résultat non enregistré",
+    "body_one": "{{count}} fichier a été produit mais pas encore enregistré. Il sera perdu.",
+    "body_other": "{{count}} fichiers ont été produits mais pas encore enregistrés. Ils seront perdus.",
+    "discard": "Quitter sans enregistrer",
+    "save": "Enregistrer et continuer"
+  },
+  "pages": {
+    "all": "Toutes les pages",
+    "some": "Sélection",
+    "selectAll": "Tout",
+    "selectNone": "Aucune",
+    "odd": "Impaires",
+    "even": "Paires",
+    "invert": "Inverser",
+    "selected_one": "{{count}} page sélectionnée",
+    "selected_other": "{{count}} pages sélectionnées",
+    "shiftHint": "Maj+clic pour une plage"
+  }
+}
