@@ -24,7 +24,7 @@ import type { ToolId } from "@/lib/types";
  * the two or three things people actually do next, not to re-list the grid.
  */
 const CHAIN_AFTER_PDF: ToolId[] = ["compress", "page-numbers", "watermark", "split"];
-const CHAIN_AFTER_IMAGE: ToolId[] = ["images-to-pdf"];
+const CHAIN_AFTER_IMAGE: ToolId[] = ["images-to-pdf", "convert-images"];
 
 function AppShell() {
   const { t } = useTranslation();
@@ -170,9 +170,12 @@ function AppShell() {
       </header>
 
       <main className="flex-1 min-h-0 overflow-y-auto">
+        {/* One container for both views, and no `key` on it: keying it would
+            remount the view that is *staying*, and Home holds the open tool,
+            its previews and the result card. */}
         <div className="mx-auto w-full max-w-4xl px-7 pt-2 pb-[12vh]">
           {showSettings ? (
-            <SettingsPanel onBack={() => setShowSettings(false)} />
+            <SettingsPanel />
           ) : (
             <Home
               tray={tray}

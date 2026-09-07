@@ -16,11 +16,12 @@ Cousin de [FFkit](https://github.com/PaulMarchiset/ffkit) : même pile technique
 
 | Outil | Ce qu'il fait |
 |---|---|
-| **Images → PDF** | Assemble JPG / PNG / WebP / AVIF en un document, format et marges au choix |
+| **Images → PDF** | Assemble JPG / PNG / HEIC / WebP / AVIF en un document, format et marges au choix |
 | **Fusionner** | Met bout à bout plusieurs PDF, dans l'ordre que vous fixez |
 | **Diviser** | Par intervalles (`1-3, 8-10`), toutes les N pages, une page par fichier, ou extraction d'une sélection |
 | **Organiser** | Vignettes de toutes les pages : réordonner, pivoter, supprimer |
 | **PDF → Images** | Chaque page en PNG / JPG / WebP, de 72 à 600 DPI |
+| **Convertir** | HEIC (photos iPhone), PNG, WebP, AVIF… vers JPG / PNG / WebP |
 | **Compresser** | Rééchantillonne les pages en JPEG (trois niveaux, niveaux de gris en option) |
 | **Filigrane** | Texte en travers des pages, centré ou en mosaïque, angle et opacité réglables |
 | **Numéroter** | Numéros de page, position, format (`{n} / {total}`), page de départ |
@@ -87,6 +88,10 @@ Tout le traitement PDF vit dans le front, dans la webview :
   rendu — vignettes, export en images, compression, extraction de texte. Ses
   tables CMap et polices standard sont recopiées dans `public/pdfjs/` au moment
   du `npm install` : elles sont servies depuis le disque, jamais depuis un CDN.
+- **[libheif](https://github.com/strukturag/libheif)** (compilé en WebAssembly)
+  pour le HEIC. C'est le seul format d'image que la webview ne sait pas lire :
+  il contient du HEVC, et Chromium n'embarque pas de décodeur HEVC. Le module
+  n'est chargé qu'au premier fichier HEIC rencontré.
 
 Le Rust (`src-tauri/`) ne fait que le strict minimum qu'une page web ne sait pas
 faire : boîtes de dialogue natives, lecture/écriture des fichiers choisis, et

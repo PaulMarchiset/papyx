@@ -3,6 +3,7 @@ import { readFile, writeFile } from "@tauri-apps/plugin-fs";
 import { openPath, revealItemInDir } from "@tauri-apps/plugin-opener";
 import { join } from "@tauri-apps/api/path";
 import { isTauri } from "@/lib/platform";
+import { IMAGE_EXTENSIONS } from "@/lib/pdf/images";
 import { basename } from "@/lib/format";
 import type { OutputFile } from "@/lib/types";
 
@@ -29,10 +30,9 @@ export interface FileFilter {
 }
 
 export const PDF_FILTER: FileFilter = { name: "PDF", extensions: ["pdf"] };
-export const IMAGE_FILTER: FileFilter = {
-  name: "Images",
-  extensions: ["png", "jpg", "jpeg", "webp", "avif", "gif", "bmp", "tif", "tiff"],
-};
+// Taken from the same list the tray classifies with, so a newly supported
+// format cannot end up filtered out of the native picker.
+export const IMAGE_FILTER: FileFilter = { name: "Images", extensions: IMAGE_EXTENSIONS };
 
 function acceptAttribute(filters: FileFilter[]): string {
   return filters.flatMap((f) => f.extensions.map((e) => `.${e}`)).join(",");

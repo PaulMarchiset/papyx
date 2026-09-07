@@ -16,12 +16,16 @@ stack, same design tokens, different domain.
 
 ## Where the work happens
 
-All PDF processing is frontend code. Two engines, and the split matters:
+All PDF processing is frontend code. Three engines, and the split matters:
 
 - **pdf-lib** (`src/lib/pdf/{document,merge,split,organize,imagesToPdf,stamp,metadata}.ts`)
   for structural edits. Non-destructive: text stays text.
 - **pdf.js** (`src/lib/pdf/{pdfjs,rasterize,text}.ts`) for anything needing a
   rendered page. Destructive by nature — `compressPdf` rasterizes.
+- **libheif-js** (`src/lib/pdf/heif.ts`) for HEIC only, behind a dynamic import.
+  Canvas encoding is shared by the two image paths in `canvas.ts`; `images.ts`
+  owns `decodeToCanvas`, which is what makes HEIC work everywhere at once
+  (convert, images→PDF, watermark, tray previews) rather than in one tool.
 
 Adding a tool means adding one operation under `src/lib/pdf/`, one definition
 under `src/components/tools/` implementing `ToolDefinition`, and one entry in
@@ -57,14 +61,36 @@ Consequences worth knowing:
 
 ## Motion
 
-Three primitives in `styles.css`: `.animate-rise` (panels, cards, the tray),
-`.animate-pop` (menus, dialogs) and `.animate-fade`, plus a 2% press dip on
-every button. Two cascade traps are already paid for and easy to reintroduce:
-the press rule lives **outside** `@layer base` as `button:not(:disabled)`,
-because a utility like `transition-colors` sets `transition-property` on the
-element and would drop the transform; and the `prefers-reduced-motion` block is
-unlayered and last, because layered rules lose to the unlayered animation
-utilities they are trying to override. Both are covered by an e2e test.
+Nothing animates its way into existence. A panel, a card, a menu or a dialog is
+simply there when it opens, and changing tool or view plays nothing — the app
+had a rise-and-fade entrance on all of them and it read as the interface
+re-arriving on every click. What is left moves for a reason: the layout, a 2%
+press dip on every button, and the indeterminate progress sweep.
+
+Conditional options are the layout case, and they go through `ui/Collapse`
+instead of `{condition && <Row/>}` — the quality row, the page grid, the output
+folder. Inserting a row moved everything under it in one frame; the component
+gives the row itself the height (`grid-template-rows: 0fr -> 1fr`, the one way
+to interpolate a content-sized box) so its neighbours travel. Two details are
+load-bearing: a closed Collapse renders `null` rather than a zero-height box,
+because `space-y` margins go by position in the DOM and an empty box still
+hands its neighbour a gap; and the content is clipped only while moving, or a
+`Select` menu inside one would be cut off.
+
+Everything that does move shares `--ease-soft`, a cubic ease-out that keeps
+travelling for most of its duration — the sharper expo/quint curves put nine
+tenths of the distance in the first fifth of the time and read as a snap. It is
+also set as Tailwind v4's `--default-transition-duration` /
+`--default-transition-timing-function`, so hovers and colour changes soften with
+it instead of running on their own 150ms default.
+
+Two cascade traps are already paid for and easy to reintroduce: the press rule
+lives **outside** `@layer base` as `button:not(:disabled)`, because a utility
+like `transition-colors` sets `transition-property` on the element and would
+drop the transform; and the `prefers-reduced-motion` block is unlayered and
+last, because layered rules lose to the unlayered utilities they are trying to
+override. All of the above is covered by e2e tests — including that a click
+leaves nothing mid-entrance.
 
 ## Things that will bite
 
@@ -77,6 +103,12 @@ utilities they are trying to override. Both are covered by an e2e test.
 - **`public/pdfjs/` is generated**, by `scripts/sync-pdfjs-assets.mjs` on
   postinstall. It is git-ignored. Without it, CJK documents and PDFs relying on
   the 14 standard fonts render blank.
+- **HEIC needs `'wasm-unsafe-eval'` in the CSP.** Chromium ships no HEVC
+  decoder, so libheif is compiled to wasm — and the production `script-src`
+  would otherwise block instantiating it, silently, in the built app only.
+  Note also that AVIF lives in the same ISO-BMFF container and declares `mif1`
+  among its brands: `isHeif` excludes it on purpose, because the browser
+  decodes AVIF natively and better. There is a test for that.
 - **Helvetica is WinAnsi-encoded.** `toWinAnsi` folds typographic strays before
   pdf-lib throws on them; do not remove it when touching the stamping tools.
 - **`dragDropEnabled: false` is deliberate.** On Windows, letting Tauri handle

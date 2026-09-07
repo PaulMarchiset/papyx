@@ -57,7 +57,7 @@ test("reorders files by dragging a row", async ({ page }) => {
 test("reorders pages by dragging a thumbnail", async ({ page }) => {
   await page.goto("/");
   await openToolWithFiles(page, /Organiser/, ["tests/fixtures/alpha.pdf"]);
-  await expect(page.locator("img[alt='']")).toHaveCount(3, { timeout: 20_000 });
+  await expect(page.locator(".grid > div img[alt='']")).toHaveCount(3, { timeout: 20_000 });
 
   const cards = page.locator(".grid > div");
   await expect(cards.first()).toContainText("1");
@@ -73,7 +73,8 @@ test("renders page thumbnails in the organize tool", async ({ page }) => {
   await openToolWithFiles(page, /Organiser/, ["tests/fixtures/alpha.pdf"]);
 
   // Three thumbnails means the pdf.js worker booted and rendered to canvas.
-  const thumbnails = page.locator("img[alt='']");
+  // Scoped to the page cards: the file tray carries a preview of its own.
+  const thumbnails = page.locator(".grid > div img[alt='']");
   await expect(thumbnails).toHaveCount(3, { timeout: 20_000 });
   await page.getByRole("button", { name: "Tout sélectionner" }).click();
   await page.getByRole("button", { name: "Pivoter à droite" }).click();
@@ -142,6 +143,17 @@ test("shows the save-location choice as two explained options", async ({ page })
   await page.getByRole("button", { name: /Demander à chaque fois/ }).click();
   await expect(page.getByRole("option", { name: /Dossier fixe/ })).toBeVisible();
   await page.screenshot({ path: "tests/screenshots/settings.png" });
+});
+
+test("previews a loaded document in the tray", async ({ page }) => {
+  await page.goto("/");
+  await openToolWithFiles(page, /Fusionner/, ["tests/fixtures/alpha.pdf"]);
+  // The preview is rendered asynchronously and published from a callback that
+  // outlives its effect; it used to be dropped whenever the effect re-ran,
+  // which under StrictMode is every time. See useFileThumbnails.
+  await expect(page.locator('img[src^="data:image/png"]')).toBeVisible({
+    timeout: 15_000,
+  });
 });
 
 test("keeps loaded files when switching tools", async ({ page }) => {
@@ -259,12 +271,19 @@ test("sits the wordmark on the same baseline as the badge beside it", async ({ p
   expect(delta).toBeLessThanOrEqual(0.5);
 });
 
-test("animates panels in, and holds still for anyone who asked it to", async ({ page }) => {
+test("opens a tool without animating anything into place", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: /Fusionner/ }).click();
+  await expect(page.getByRole("heading", { name: "Fusionner" })).toBeVisible();
 
-  const panel = page.locator(".animate-rise").first();
-  await expect(panel).toHaveCSS("animation-name", "rise");
+  // Panels, cards and menus are simply there when they open: nothing is
+  // mid-entrance a frame after the click that produced it.
+  expect(
+    await page.evaluate(() =>
+      document.getAnimations().filter((animation) => animation.playState === "running").length,
+    ),
+  ).toBe(0);
+
   // The press dip needs `transform` in the transition, which Tailwind's
   // `transition-colors` would otherwise drop (see styles.css).
   await expect(page.getByRole("button", { name: /Compresser/ })).toHaveCSS(
@@ -275,8 +294,72 @@ test("animates panels in, and holds still for anyone who asked it to", async ({ 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.reload();
   await page.getByRole("button", { name: /Fusionner/ }).click();
-  await expect(page.locator(".animate-rise").first()).toHaveCSS(
-    "animation-duration",
-    "0.001s",
+  // Someone who asked for less movement gets the press dip held still too.
+  await expect(page.getByRole("button", { name: /Compresser/ })).toHaveCSS(
+    "transform",
+    "none",
   );
+});
+
+test("swaps home and settings without remounting the open tool", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: /Fusionner/ }).click();
+
+  await page.getByRole("button", { name: "Réglages" }).click();
+  await expect(page.getByRole("heading", { name: "Réglages" })).toBeVisible();
+  // Settings has no back button of its own: the header toggle both opens and
+  // closes it.
+  await expect(page.getByRole("button", { name: "Retour" })).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Réglages" }).click();
+  // Coming back must not have remounted Home — the tool is still the one that
+  // was open, which a `key` on the shared container would have lost.
+  await expect(page.getByRole("button", { name: /Fusionner/ })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+});
+
+test("grows a conditional option into place instead of inserting it", async ({ page }) => {
+  await page.goto("/");
+  await openToolWithFiles(page, /PDF → Images/, ["tests/fixtures/alpha.pdf"]);
+  const card = page.locator(".scroll-mt-4 .rounded-2xl").first();
+  // The panel is still filling in (page count, thumbnails) for a moment after
+  // it opens, so the baseline is whatever height it comes to rest at.
+  const settled = async () => {
+    let previous = -1;
+    for (let i = 0; i < 25; i++) {
+      const height = (await card.boundingBox())!.height;
+      if (height === previous) return height;
+      previous = height;
+      await page.waitForTimeout(150);
+    }
+    return previous;
+  };
+  const closed = await settled();
+
+  // "Impression" is the JPEG preset, which is what brings the quality row in.
+  await page.getByRole("button", { name: "Impression" }).click();
+  const samples: number[] = await page.evaluate(async () => {
+    const element = document.querySelector(".scroll-mt-4 .rounded-2xl") as HTMLElement;
+    const heights: number[] = [];
+    for (let i = 0; i < 8; i++) {
+      heights.push(element.getBoundingClientRect().height);
+      await new Promise((resolve) => setTimeout(resolve, 30));
+    }
+    return heights;
+  });
+  await expect(page.getByText("Qualité")).toBeVisible();
+  const open = (await card.boundingBox())!.height;
+  expect(open).toBeGreaterThan(closed);
+  // The card was caught between its two heights: the row grew rather than
+  // being inserted at full size, which is what carries the run bar under it.
+  expect(samples.some((height) => height > closed && height < open)).toBe(true);
+
+  await page.getByRole("button", { name: "Standard" }).click();
+  await expect(page.getByText("Qualité")).toHaveCount(0);
+  // Closed, the row leaves nothing behind — a zero-height box would still hand
+  // its neighbour the gap of a row that is no longer there (see Collapse).
+  await expect(page.locator("[data-collapse]")).toHaveCount(0);
+  expect(await settled()).toBeCloseTo(closed, 0);
 });

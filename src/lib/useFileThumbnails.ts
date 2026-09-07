@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { openDocument, renderThumbnail } from "@/lib/pdf/pdfjs";
+import { imageThumbnail } from "@/lib/pdf/images";
+import { isHeif } from "@/lib/pdf/heif";
 import type { SourceFile } from "@/lib/types";
 
 /**
@@ -10,8 +12,15 @@ import type { SourceFile } from "@/lib/types";
  * and rendered one file at a time, so adding a tenth document does not re-render
  * the nine already there.
  *
+ * `cancelled` stops the loop from picking up the *next* file, but a preview that
+ * is already decoded still gets published: its id was claimed in `seen` the
+ * moment the work started, so a later pass would skip it and the preview would
+ * be lost for good. That is not hypothetical — StrictMode runs every effect
+ * twice, which cancelled the first pass and made the second skip everything.
+ *
  * Images are shown from a blob URL instead — decoding them through pdf.js would
- * be silly, and the browser already knows how.
+ * be silly, and the browser already knows how. Except for HEIC, which it does
+ * not: those are decoded and re-encoded down to thumbnail size (see heif.ts).
  */
 export function useFileThumbnails(files: SourceFile[]): Record<string, string> {
   const [urls, setUrls] = useState<Record<string, string>>({});
@@ -29,9 +38,18 @@ export function useFileThumbnails(files: SourceFile[]): Record<string, string> {
         seen.current.add(file.id);
 
         if (file.kind === "image") {
+          if (isHeif(file.bytes)) {
+            try {
+              const url = await imageThumbnail(file.bytes, 96);
+              setUrls((current) => ({ ...current, [file.id]: url }));
+            } catch {
+              // A preview is a nicety; the file still converts.
+            }
+            continue;
+          }
           const url = URL.createObjectURL(new Blob([file.bytes as BlobPart]));
           blobs.current.push(url);
-          if (!cancelled) setUrls((current) => ({ ...current, [file.id]: url }));
+          setUrls((current) => ({ ...current, [file.id]: url }));
           continue;
         }
         if (file.locked) continue;
@@ -40,7 +58,7 @@ export function useFileThumbnails(files: SourceFile[]): Record<string, string> {
           const { doc, close } = await openDocument(file.bytes);
           try {
             const url = await renderThumbnail(doc, 1, 96);
-            if (!cancelled) setUrls((current) => ({ ...current, [file.id]: url }));
+            setUrls((current) => ({ ...current, [file.id]: url }));
           } finally {
             await close();
           }

@@ -68,7 +68,7 @@ export function FileTray({
   };
 
   return (
-    <div className="w-full rounded-2xl bg-surface overflow-hidden animate-rise">
+    <div className="w-full rounded-2xl bg-surface overflow-hidden">
       {files.length > 1 && (
         <div className="relative px-5 pt-5 pb-4 cursor-pointer group" onClick={onAdd}>
           <div className="flex items-start gap-4 pr-28">

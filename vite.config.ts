@@ -13,7 +13,12 @@ export default defineConfig({
   },
   // pdf.js ships its worker as a separate ESM chunk; keeping it out of the
   // optimizer avoids a duplicate (and mismatched) copy of the library.
-  optimizeDeps: { exclude: ["pdfjs-dist"] },
+  // pdfjs-dist: see above. libheif ships one self-contained ESM file with the
+  // wasm inlined, and it is only ever reached through a dynamic import — letting
+  // the optimizer discover it mid-session would force a reload for nothing.
+  optimizeDeps: {
+    exclude: ["pdfjs-dist", "libheif-js/libheif-wasm/libheif-bundle.mjs"],
+  },
   clearScreen: false,
   server: {
     port: 1420,

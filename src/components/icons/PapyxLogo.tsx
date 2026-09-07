@@ -63,3 +63,4 @@ export function PapyxMark({ size = 24 }: { size?: number }) {
     </svg>
   );
 }
+ 

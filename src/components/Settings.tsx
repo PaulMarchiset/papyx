@@ -1,5 +1,6 @@
-import { ArrowLeft, FolderOpen, Monitor, Moon, Sun } from "lucide-react";
+import { FolderOpen, Monitor, Moon, Sun } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Collapse } from "@/components/ui/Collapse";
 import { Row } from "@/components/ui/Row";
 import { Section } from "@/components/ui/Section";
 import { Segmented } from "@/components/ui/Segmented";
@@ -11,27 +12,16 @@ import { APP_VERSION } from "@/lib/version";
 import type { Language } from "@/lib/i18n";
 import type { Theme } from "@/lib/types";
 
-interface Props {
-  onBack: () => void;
-}
-
-export function SettingsPanel({ onBack }: Props) {
+export function SettingsPanel() {
   const { t } = useTranslation();
   const { settings, update } = useSettings();
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <button
-          type="button"
-          onClick={onBack}
-          aria-label={t("common.back")}
-          className="p-2 rounded-md border border-border-strong text-fg hover:bg-elevate-2 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-        </button>
-        <h2 className="text-xl font-semibold text-fg">{t("settings.title")}</h2>
-      </div>
+      {/* No back button: the settings toggle in the header is what opened this
+          panel and is what closes it, so a second way out would only be a
+          second thing to aim at. */}
+      <h2 className="text-xl font-semibold text-fg">{t("settings.title")}</h2>
 
       <Section title={t("settings.appearance")}>
         <Row label={t("settings.theme")}>
@@ -103,10 +93,12 @@ export function SettingsPanel({ onBack }: Props) {
             />
           </Row>
 
-          {settings.outputDir && (
+          {/* Growing rather than appearing: picking a fixed folder adds a row
+              in the middle of the card, and the rest of it should slide. */}
+          <Collapse open={settings.outputDir != null}>
             <Row label={t("settings.folder")}>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted max-w-72 truncate" title={settings.outputDir}>
+                <span className="text-sm text-muted max-w-72 truncate" title={settings.outputDir ?? undefined}>
                   {settings.outputDir}
                 </span>
                 <button
@@ -122,7 +114,7 @@ export function SettingsPanel({ onBack }: Props) {
                 </button>
               </div>
             </Row>
-          )}
+          </Collapse>
         </Section>
       )}
 

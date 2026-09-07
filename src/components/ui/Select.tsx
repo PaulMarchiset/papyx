@@ -86,7 +86,7 @@ export function Select<T extends string>({
         <div
           role="listbox"
           className={cn(
-            "absolute right-0 z-30 mt-1 min-w-full rounded-xl bg-surface shadow-lg shadow-black/40 animate-pop",
+            "absolute right-0 z-30 mt-1 min-w-full rounded-xl bg-surface shadow-lg shadow-black/40",
             // Roomy menus share a floor width so the dropdowns read as one
             // family instead of each hugging its longest option.
             roomy ? "min-w-88 p-1.5" : "p-1",

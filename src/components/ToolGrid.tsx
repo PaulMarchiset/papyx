@@ -33,7 +33,7 @@ export function ToolGrid({ files, selected, onSelect }: Props) {
     return (
       <div
         key="chips"
-        className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-2 animate-rise"
+        className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-2"
       >
         {TOOLS.map((tool) => (
           <Chip
@@ -49,7 +49,7 @@ export function ToolGrid({ files, selected, onSelect }: Props) {
   }
 
   return (
-    <div key="cards" className="space-y-4 animate-rise">
+    <div key="cards" className="space-y-4">
       <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3">
         {FEATURED.map((id) => TOOLS.find((tool) => tool.id === id)!).map((tool) => {
           const Icon = tool.icon;

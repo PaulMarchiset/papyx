@@ -1,17 +1,21 @@
 import type { PDFDocument, PDFImage } from "pdf-lib";
+import { canvasToBytes, createCanvas } from "@/lib/pdf/canvas";
+import { HEIF_EXTENSIONS, decodeHeif, isHeif } from "@/lib/pdf/heif";
 
 /**
- * Image decoding helpers shared by the images→PDF and watermark tools.
+ * Image decoding helpers shared by the images→PDF, watermark and convert tools.
  *
  * pdf-lib can embed baseline JPEG and PNG directly, which is the good path: the
  * original compressed bytes go into the file untouched. Anything else (WebP,
  * AVIF, GIF, BMP, TIFF where the platform decodes it, CMYK JPEGs pdf-lib
  * chokes on) is decoded by the browser and re-encoded once, which is lossy but
- * is the only way to get those formats into a PDF at all.
+ * is the only way to get those formats into a PDF at all. HEIC is the one
+ * format the browser cannot decode either — see heif.ts.
  */
 
 export const IMAGE_EXTENSIONS = [
   "png", "jpg", "jpeg", "webp", "avif", "gif", "bmp", "tif", "tiff",
+  ...HEIF_EXTENSIONS,
 ];
 
 const JPEG_MAGIC = [0xff, 0xd8, 0xff];
@@ -21,21 +25,52 @@ function startsWith(bytes: Uint8Array, magic: number[]): boolean {
   return magic.every((b, i) => bytes[i] === b);
 }
 
-/** Re-encodes anything the browser can decode into a PNG or JPEG. */
+/**
+ * Decodes any supported image onto a canvas. Everything the WebView knows goes
+ * through createImageBitmap; HEIC takes the wasm detour and arrives as raw
+ * RGBA, which is the only difference the callers ever see.
+ */
+export async function decodeToCanvas(bytes: Uint8Array): Promise<HTMLCanvasElement> {
+  if (isHeif(bytes)) {
+    const image = await decodeHeif(bytes);
+    return createCanvas(image.width, image.height, (ctx) =>
+      ctx.putImageData(new ImageData(image.data, image.width, image.height), 0, 0),
+    );
+  }
+  const bitmap = await createImageBitmap(new Blob([bytes as BlobPart]));
+  try {
+    return createCanvas(bitmap.width, bitmap.height, (ctx) => ctx.drawImage(bitmap, 0, 0));
+  } finally {
+    bitmap.close();
+  }
+}
+
+/**
+ * A small data-URL preview, for the formats the tray cannot hand straight to an
+ * <img>. Everything else gets a blob URL for free and never comes through here.
+ */
+export async function imageThumbnail(bytes: Uint8Array, maxEdge: number): Promise<string> {
+  const source = await decodeToCanvas(bytes);
+  const scale = Math.min(1, maxEdge / Math.max(source.width, source.height));
+  const width = Math.max(1, Math.round(source.width * scale));
+  const height = Math.max(1, Math.round(source.height * scale));
+  return createCanvas(width, height, (ctx) =>
+    ctx.drawImage(source, 0, 0, width, height),
+  ).toDataURL("image/jpeg", 0.8);
+}
+
+/** Re-encodes anything we can decode into a PNG or JPEG. */
 async function transcode(bytes: Uint8Array): Promise<{ bytes: Uint8Array; jpeg: boolean }> {
-  const blob = new Blob([bytes as BlobPart]);
-  const bitmap = await createImageBitmap(blob);
-  const canvas = document.createElement("canvas");
-  canvas.width = bitmap.width;
-  canvas.height = bitmap.height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("canvas-unavailable");
-  ctx.drawImage(bitmap, 0, 0);
-  bitmap.close();
+  const canvas = await decodeToCanvas(bytes);
   // PNG keeps transparency, which matters for logos dropped in as watermarks.
-  const out = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/png"));
-  if (!out) throw new Error("encode-failed");
-  return { bytes: new Uint8Array(await out.arrayBuffer()), jpeg: false };
+  // A phone photo is the other extreme: twelve megapixels of PNG would add
+  // thirty megabytes to the document where JPEG adds one, so HEIC — which only
+  // ever arrives as a photo — takes the lossy path instead.
+  const jpeg = isHeif(bytes);
+  return {
+    bytes: await canvasToBytes(canvas, jpeg ? "image/jpeg" : "image/png", jpeg ? 0.92 : undefined),
+    jpeg,
+  };
 }
 
 /** Embeds any supported image into `doc`, transcoding only when it has to. */

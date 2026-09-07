@@ -1,22 +1,10 @@
 import type { ProgressCallback } from "@/lib/pdf/progress";
 import { PDFDocument } from "pdf-lib";
 import { savePdf } from "@/lib/pdf/document";
-import {
-  canvasToBytes,
-  openDocument,
-  renderPage,
-  scaleForDpi,
-} from "@/lib/pdf/pdfjs";
+import { openDocument, renderPage, scaleForDpi } from "@/lib/pdf/pdfjs";
+import { MIME, canvasToBytes, extensionFor, type ImageFormat } from "@/lib/pdf/canvas";
 import type { OutputFile } from "@/lib/types";
 import { stem } from "@/lib/format";
-
-export type ImageFormat = "png" | "jpeg" | "webp";
-
-const MIME: Record<ImageFormat, "image/png" | "image/jpeg" | "image/webp"> = {
-  png: "image/png",
-  jpeg: "image/jpeg",
-  webp: "image/webp",
-};
 
 export interface PdfToImagesOptions {
   format: ImageFormat;
@@ -60,7 +48,7 @@ export async function pdfToImages(
         options.format === "png" ? undefined : options.quality,
       );
       outputs.push({
-        name: `${base}_${String(pageNumber).padStart(width, "0")}.${options.format === "jpeg" ? "jpg" : options.format}`,
+        name: `${base}_${String(pageNumber).padStart(width, "0")}.${extensionFor(options.format)}`,
         bytes,
         mime: MIME[options.format],
       });

@@ -94,7 +94,7 @@ export function ToolPanel({
   const Options = tool.Options;
 
   return (
-    <div ref={anchor} className="space-y-4 scroll-mt-4 animate-rise">
+    <div ref={anchor} className="space-y-4 scroll-mt-4">
       <Section>
         <div className="flex items-start justify-between gap-4">
           <div>

@@ -3,9 +3,11 @@ import { useTranslation } from "react-i18next";
 import { Row } from "@/components/ui/Row";
 import { Select } from "@/components/ui/Select";
 import { Slider } from "@/components/ui/Field";
+import { Collapse } from "@/components/ui/Collapse";
 import { PageSelector } from "@/components/PageSelector";
 import { runPerFile, sharedPageCount } from "@/components/tools/batch";
-import { DEFAULT_PDF_TO_IMAGES, pdfToImages, type ImageFormat } from "@/lib/pdf/rasterize";
+import { DEFAULT_PDF_TO_IMAGES, pdfToImages } from "@/lib/pdf/rasterize";
+import type { ImageFormat } from "@/lib/pdf/canvas";
 import { parsePageRanges } from "@/lib/pageRanges";
 import { ToolError } from "@/lib/toolError";
 import type { OptionsProps, ToolDefinition } from "@/components/tools/types";
@@ -42,7 +44,9 @@ function PdfToImagesOptionsPanel({ value, onChange, files }: OptionsProps<Option
         />
       </Row>
 
-      {value.format !== "png" && (
+      {/* Lossless PNG has no quality to set. The row grows in and out rather
+          than appearing, so switching preset moves what is under it. */}
+      <Collapse open={value.format !== "png"}>
         <Row label={t("options.quality")}>
           <Slider
             value={Math.round(value.quality * 100)}
@@ -53,7 +57,7 @@ function PdfToImagesOptionsPanel({ value, onChange, files }: OptionsProps<Option
             onChange={(quality) => onChange({ quality: quality / 100 })}
           />
         </Row>
-      )}
+      </Collapse>
 
       <PageSelector
         label={t("options.pages")}

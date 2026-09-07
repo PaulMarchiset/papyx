@@ -3,6 +3,7 @@ import { mergeTool } from "@/components/tools/MergeTool";
 import { splitTool } from "@/components/tools/SplitTool";
 import { organizeTool } from "@/components/tools/OrganizeTool";
 import { pdfToImagesTool } from "@/components/tools/PdfToImagesTool";
+import { convertImagesTool } from "@/components/tools/ConvertImagesTool";
 import { compressTool } from "@/components/tools/CompressTool";
 import { watermarkTool } from "@/components/tools/WatermarkTool";
 import { pageNumbersTool } from "@/components/tools/PageNumbersTool";
@@ -27,6 +28,7 @@ export const TOOLS: AnyTool[] = [
   splitTool,
   organizeTool,
   pdfToImagesTool,
+  convertImagesTool,
   compressTool,
   watermarkTool,
   pageNumbersTool,

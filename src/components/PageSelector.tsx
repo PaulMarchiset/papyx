@@ -1,5 +1,6 @@
 import { useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { Collapse } from "@/components/ui/Collapse";
 import { Segmented } from "@/components/ui/Segmented";
 import { formatPageRanges, parsePageRanges } from "@/lib/pageRanges";
 import { useThumbnails } from "@/lib/useThumbnails";
@@ -87,8 +88,11 @@ export function PageSelector({
         )}
       </div>
 
-      {!all && (
-        <>
+      {/* Switching between "every page" and a selection moves a whole grid in
+          and out of the layout; growing it is the difference between the rest
+          of the panel travelling and it teleporting. */}
+      <Collapse open={!all}>
+        <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <Shortcut onClick={() => apply(pages)}>{t("pages.selectAll")}</Shortcut>
             <Shortcut onClick={() => apply([])}>{t("pages.selectNone")}</Shortcut>
@@ -107,7 +111,7 @@ export function PageSelector({
 
           <div
             className={cn(
-              "grid gap-2 animate-rise",
+              "grid gap-2",
               withThumbnails
                 ? "grid-cols-[repeat(auto-fill,minmax(84px,1fr))]"
                 : "grid-cols-[repeat(auto-fill,minmax(52px,1fr))]",
@@ -162,8 +166,8 @@ export function PageSelector({
             )}
             <span className="ml-2 opacity-70">{t("pages.shiftHint")}</span>
           </p>
-        </>
-      )}
+        </div>
+      </Collapse>
     </div>
   );
 }

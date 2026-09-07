@@ -1,6 +1,6 @@
 [package]
 name = "papyx"
-version = "0.1.0"
+version = "1.0.0"
 description = "Papyx — local-only PDF toolbox"
 authors = ["Paul Marchiset"]
 license = "GPL-3.0"

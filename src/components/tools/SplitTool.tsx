@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Row } from "@/components/ui/Row";
 import { Select } from "@/components/ui/Select";
 import { NumberField } from "@/components/ui/Field";
+import { Collapse } from "@/components/ui/Collapse";
 import { PageSelector } from "@/components/PageSelector";
 import { splitPdf, type SplitMode } from "@/lib/pdf/split";
 import { parsePageRanges } from "@/lib/pageRanges";
@@ -37,7 +38,9 @@ function SplitOptionsPanel({ value, onChange, files }: OptionsProps<Options>) {
         />
       </Row>
 
-      {(value.mode === "ranges" || value.mode === "extract") && (
+      {/* The two mode-specific blocks trade places: one grows while the other
+          shrinks, so nothing below them jumps. */}
+      <Collapse open={value.mode === "ranges" || value.mode === "extract"}>
         <PageSelector
           label={t("options.ranges")}
           value={value.ranges}
@@ -46,9 +49,9 @@ function SplitOptionsPanel({ value, onChange, files }: OptionsProps<Options>) {
           pageCount={pageCount}
           allowAll={false}
         />
-      )}
+      </Collapse>
 
-      {value.mode === "every" && (
+      <Collapse open={value.mode === "every"}>
         <Row label={t("options.every")}>
           <NumberField
             value={value.every}
@@ -57,7 +60,7 @@ function SplitOptionsPanel({ value, onChange, files }: OptionsProps<Options>) {
             onChange={(every) => onChange({ every })}
           />
         </Row>
-      )}
+      </Collapse>
     </>
   );
 }

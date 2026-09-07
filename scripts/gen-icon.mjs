@@ -22,13 +22,13 @@ const page = await browser.newPage({
   viewport: { width: SIZE, height: SIZE },
   deviceScaleFactor: 1,
 });
-// The SVG carries its own 500x500 box; stretching it to the viewport is what
-// scales it up, and `display:block` keeps the page from adding a baseline gap.
+// The SVG carries its own 1933x1933 box; stretching it to the viewport is what
+// scales it down, and `display:block` keeps the page from adding a baseline gap.
 await page.setContent(
   `<style>html,body{margin:0;padding:0}svg{display:block;width:${SIZE}px;height:${SIZE}px}</style>${svg}`,
 );
-// The artwork carries no background of its own, and a launcher expects the
-// corners to be transparent rather than white.
+// The artwork paints its own tile, so only the four corners outside its 40px
+// radius are uncovered — and a launcher expects those transparent, not white.
 await page.screenshot({ path: output, omitBackground: true });
 await browser.close();
 

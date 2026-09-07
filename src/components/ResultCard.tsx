@@ -34,7 +34,7 @@ export function ResultCard({ state, preview, showsDelta, chain, onChain }: Props
   const many = state.outputs.length > 1;
 
   return (
-    <div className="rounded-2xl bg-surface px-6 py-6 space-y-5 animate-rise">
+    <div className="rounded-2xl bg-surface px-6 py-6 space-y-5">
       <div>
         <div className="flex items-center gap-2 text-fg">
           <Check className="w-4 h-4 text-accent" />

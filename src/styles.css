@@ -35,6 +35,16 @@
   /* Page thumbnails always sit on white paper, whatever the app theme. */
   --color-paper: #ffffff;
 
+  /* One easing for the whole app: a cubic ease-out. Deliberately not one of
+     the sharper expo/quint curves — those spend nine tenths of the distance in
+     the first fifth of the time, which reads as a snap with a long tail rather
+     than as movement. This one keeps travelling for most of the duration.
+     The last two are Tailwind v4 theme variables, so every `transition-*`
+     utility picks them up: hovers and colour changes soften along with it. */
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+  --default-transition-duration: 260ms;
+  --default-transition-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
+
   --font-serif: "Sirba", Georgia, "Times New Roman", serif;
   --font-sans: "PP Mori", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -140,37 +150,12 @@
   font-display: swap;
 }
 
-/* Panels, cards and menus arrive rather than appear: a short rise from a few
-   pixels down, on the same easing everywhere so the app has one movement. The
-   `both` fill matters — without it the first frame is the finished state and
-   the animation reads as a flicker. */
-@keyframes rise {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: none; }
-}
-.animate-rise {
-  animation: rise 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-/* For things that come from a click on a specific spot (menus, dialogs): a
-   scale rather than a slide, so they read as growing out of the gesture. */
-@keyframes pop {
-  from { opacity: 0; transform: scale(0.97); }
-  to   { opacity: 1; transform: none; }
-}
-.animate-pop {
-  animation: pop 160ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-@keyframes fade {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-.animate-fade {
-  animation: fade 160ms linear both;
-}
-
-/* Indeterminate sweep for jobs whose progress can't be measured up front. */
+/* Nothing animates its way into existence here: a panel, a card, a menu or a
+   dialog is simply there when it opens. What moves is the layout — a row that
+   comes or goes grows and shrinks (see ui/Collapse) so its neighbours travel
+   instead of jumping — plus the press dip below and this sweep, the only
+   animation left: the indeterminate bar for jobs whose progress cannot be
+   measured up front. */
 @keyframes bar-sweep {
   0%   { transform: translateX(-100%); }
   100% { transform: translateX(300%); }
@@ -215,8 +200,8 @@
    step above a single class is all it takes to win. */
 button:not(:disabled) {
   transition-property: transform, color, background-color, border-color, opacity;
-  transition-duration: 140ms;
-  transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition-duration: 260ms;
+  transition-timing-function: var(--ease-soft);
 }
 button:active:not(:disabled) {
   transform: scale(0.98);
@@ -231,11 +216,14 @@ button[data-flat]:active:not(:disabled) {
    interface still changes, it just stops travelling to get there. Unlayered and
    last, so it outranks the animation utilities above. */
 @media (prefers-reduced-motion: reduce) {
-  .animate-rise,
-  .animate-pop,
-  .animate-fade,
   .animate-sweep {
     animation-duration: 1ms;
+  }
+  /* A block that grows into the layout still has to reach its size, so this
+     collapses the travel rather than removing it. `transitionend` keeps
+     firing, which is what Collapse unmounts and unclips on. */
+  [data-collapse] {
+    transition-duration: 1ms;
   }
   button:active:not(:disabled) {
     transform: none;

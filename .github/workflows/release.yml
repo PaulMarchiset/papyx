@@ -1,0 +1,56 @@
+# Builds the desktop app and publishes it as a GitHub release, so a tag is the
+# only thing that has to be right: `git tag v1.2.3 && git push origin v1.2.3`
+# puts the Windows installers on the release page as downloads.
+#
+# Windows only, on purpose — that is what Papyx is built and tested against.
+# Adding macOS or Linux means another runner in a matrix here, plus the webkit
+# system packages on Linux and a signing identity on macOS.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  # Re-runnable by hand, but dispatch it *from the tag* — the release is named
+  # after whatever ref it runs on.
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      # The cold Rust build is the long pole; this makes every release after
+      # the first one a few minutes rather than fifteen.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      # `npm ci` also runs the postinstall that vendors public/pdfjs — without
+      # it the built app renders CJK documents and standard-font PDFs blank.
+      - run: npm ci
+
+      # Runs `npm run build` (tsc --noEmit, then vite) before bundling, so a
+      # type error stops the release rather than shipping.
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Papyx ${{ github.ref_name }}
+          releaseBody: |
+            Papyx pour Windows — installeur `.exe` (NSIS) ou `.msi` ci-dessous.
+
+            Tout le traitement PDF se fait localement, dans l'application.
+          releaseDraft: false
+          prerelease: false

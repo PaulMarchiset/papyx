@@ -26,11 +26,11 @@ export function Modal({ title, description, children, onClose }: Props) {
       role="dialog"
       aria-modal="true"
       aria-label={title}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6 animate-fade"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-2xl bg-surface px-6 py-6 space-y-4 shadow-xl shadow-black/40 animate-pop"
+        className="w-full max-w-md rounded-2xl bg-surface px-6 py-6 space-y-4 shadow-xl shadow-black/40"
         onClick={(event) => event.stopPropagation()}
       >
         <div>

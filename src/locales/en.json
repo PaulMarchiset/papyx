@@ -2,7 +2,6 @@
   "common": {
     "run": "Run",
     "running": "Working…",
-    "back": "Back",
     "settings": "Settings",
     "addFiles": "Add files",
     "remove": "Remove",
@@ -30,7 +29,7 @@
   "tools": {
     "images-to-pdf": {
       "name": "Images → PDF",
-      "desc": "Turn JPG, PNG or WebP files into one document."
+      "desc": "Turn JPG, PNG, HEIC or WebP files into one document."
     },
     "merge": {
       "name": "Merge",
@@ -47,6 +46,10 @@
     "pdf-to-images": {
       "name": "PDF → Images",
       "desc": "Export every page as PNG, JPG or WebP."
+    },
+    "convert-images": {
+      "name": "Convert",
+      "desc": "HEIC, PNG, WebP… into JPG, PNG or WebP."
     },
     "compress": {
       "name": "Compress",
@@ -190,6 +193,7 @@
     "passwordRequired": "Password required.",
     "wrongPassword": "Wrong password.",
     "encrypted": "Encrypted document: this tool cannot edit it.",
+    "decode": "Could not read this image: {{name}}",
     "generic": "Processing failed: {{message}}"
   },
   "settings": {

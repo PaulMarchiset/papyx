@@ -5,6 +5,7 @@ export type ToolId =
   | "split"
   | "organize"
   | "pdf-to-images"
+  | "convert-images"
   | "compress"
   | "watermark"
   | "page-numbers"

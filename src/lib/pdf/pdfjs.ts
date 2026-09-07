@@ -99,15 +99,3 @@ export async function renderThumbnail(
   const canvas = await renderPage(doc, pageNumber, maxWidth / base.width);
   return canvas.toDataURL("image/png");
 }
-
-export async function canvasToBytes(
-  canvas: HTMLCanvasElement,
-  mime: "image/png" | "image/jpeg" | "image/webp",
-  quality?: number,
-): Promise<Uint8Array> {
-  const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, mime, quality),
-  );
-  if (!blob) throw new Error("encode-failed");
-  return new Uint8Array(await blob.arrayBuffer());
-}

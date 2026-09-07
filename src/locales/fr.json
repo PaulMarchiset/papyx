@@ -2,7 +2,6 @@
   "common": {
     "run": "Lancer",
     "running": "Traitement…",
-    "back": "Retour",
     "settings": "Réglages",
     "addFiles": "Ajouter des fichiers",
     "remove": "Retirer",
@@ -30,7 +29,7 @@
   "tools": {
     "images-to-pdf": {
       "name": "Images → PDF",
-      "desc": "Assemblez JPG, PNG ou WebP en un seul document."
+      "desc": "Assemblez JPG, PNG, HEIC ou WebP en un seul document."
     },
     "merge": {
       "name": "Fusionner",
@@ -47,6 +46,10 @@
     "pdf-to-images": {
       "name": "PDF → Images",
       "desc": "Exportez chaque page en PNG, JPG ou WebP."
+    },
+    "convert-images": {
+      "name": "Convertir",
+      "desc": "HEIC, PNG, WebP… vers JPG, PNG ou WebP."
     },
     "compress": {
       "name": "Compresser",
@@ -190,6 +193,7 @@
     "passwordRequired": "Mot de passe requis.",
     "wrongPassword": "Mot de passe incorrect.",
     "encrypted": "Document chiffré : cet outil ne peut pas le modifier.",
+    "decode": "Image illisible : {{name}}",
     "generic": "Échec du traitement : {{message}}"
   },
   "settings": {
