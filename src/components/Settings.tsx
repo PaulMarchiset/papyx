@@ -1,8 +1,10 @@
 import { FolderOpen, Monitor, Moon, Sun } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { UpdateSection } from "@/components/UpdateSection";
 import { Collapse } from "@/components/ui/Collapse";
 import { Row } from "@/components/ui/Row";
 import { Section } from "@/components/ui/Section";
+import { BTN_SECONDARY } from "@/components/ui/styles";
 import { Segmented } from "@/components/ui/Segmented";
 import { Select } from "@/components/ui/Select";
 import { pickDirectory } from "@/lib/services/fileSystem";
@@ -107,7 +109,7 @@ export function SettingsPanel() {
                     const directory = await pickDirectory();
                     if (directory) update({ outputDir: directory });
                   }}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-border-strong text-sm text-fg hover:bg-elevate-2 transition-colors"
+                  className={BTN_SECONDARY}
                 >
                   <FolderOpen className="w-4 h-4" />
                   {t("settings.changeFolder")}
@@ -117,6 +119,10 @@ export function SettingsPanel() {
           </Collapse>
         </Section>
       )}
+
+      {/* Nothing to update in a browser tab, so this follows the same rule as
+          the output folder: native shell only. */}
+      {isTauri && <UpdateSection />}
 
       <Section title={t("settings.about")}>
         <p className="text-sm text-muted leading-relaxed">{t("settings.aboutLocal")}</p>

@@ -5,6 +5,7 @@ import { ActionBar } from "@/components/ActionBar";
 import { PresetRow } from "@/components/PresetRow";
 import { ResultCard, type ChainTarget } from "@/components/ResultCard";
 import { Section } from "@/components/ui/Section";
+import { BTN_ICON } from "@/components/ui/styles";
 import type { AnyTool } from "@/components/tools/registry";
 import { PasswordRequiredError } from "@/lib/pdf/pdfjs";
 import { ToolError } from "@/lib/toolError";
@@ -105,7 +106,7 @@ export function ToolPanel({
             type="button"
             onClick={onClose}
             aria-label={t("common.close")}
-            className="flex-shrink-0 p-1.5 rounded-md text-muted hover:text-fg hover:bg-elevate-3 transition-colors"
+            className={BTN_ICON}
           >
             <X className="w-4 h-4" />
           </button>

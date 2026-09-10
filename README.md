@@ -6,8 +6,10 @@ Fusionner, découper, compresser, convertir des images en PDF, exporter des page
 en images, apposer un filigrane, numéroter, extraire le texte, corriger les
 métadonnées : les mêmes gestes qu'un iLovePDF ou un Smallpdf, mais **tout se
 passe sur votre machine**. Aucun fichier ne part sur un serveur, il n'y a ni
-compte, ni file d'attente, ni limite de taille — et l'application ne fait
-littéralement aucune requête réseau.
+compte, ni file d'attente, ni limite de taille. La seule requête que
+l'application émette est celle qui demande à GitHub s'il existe une version plus
+récente — un numéro de version, rien d'autre, et elle se désactive dans les
+réglages.
 
 Cousin de [FFkit](https://github.com/PaulMarchiset/ffkit) : même pile technique
 (Tauri 2 + React + Tailwind), même langage visuel, autre domaine.
@@ -53,6 +55,17 @@ npm run tauri build
 
 Les installeurs sortent dans `src-tauri/target/release/bundle/`.
 
+Comme `createUpdaterArtifacts` est activé, la compilation signe aussi le paquet
+de mise à jour et réclame donc la clé privée :
+
+```powershell
+$env:TAURI_SIGNING_PRIVATE_KEY = Get-Content "$env:USERPROFILE.tauripapyx.key" -Raw
+$env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = "…"
+```
+
+Sans elles, la compilation s'arrête net — c'est voulu : un paquet non signé
+serait refusé par toutes les copies déjà installées.
+
 ## Tests
 
 ```bash
@@ -60,6 +73,56 @@ npm run build      # tsc --noEmit puis vite build — la vérification de types 
 npm run test:unit  # Vitest : les opérations PDF, sur de vrais documents générés
 npm run test:e2e   # Playwright : les parcours complets dans un vrai navigateur
 ```
+
+## Mises à jour
+
+Chaque copie installée interroge la page des releases au démarrage et propose
+d'installer la version trouvée. L'installation prend quelques secondes et
+redémarre l'application ; les réglages et les dossiers sont conservés. La
+vérification se coupe dans **Réglages → Mises à jour**.
+
+Rien n'est envoyé : c'est un `GET` sur un fichier public. Le manifeste est signé,
+et la signature est vérifiée avec la clé publique inscrite dans
+`src-tauri/tauri.conf.json` avant que le moindre installeur ne soit exécuté — un
+paquet signé avec une autre clé est rejeté.
+
+### Mettre en place la signature (une seule fois)
+
+```bash
+npm run tauri signer generate -- -w "$HOME/.tauri/papyx.key"
+```
+
+Le chemin doit être écrit en entier : `npm` transmet l'argument tel quel à la
+CLI Tauri, qui ne développe pas le `~` — sous PowerShell, un `~/...` crée un
+dossier littéralement nommé `~` dans le dossier courant. L'équivalent Windows :
+
+```powershell
+npm run tauri signer generate -- -w "$env:USERPROFILE.tauripapyx.key"
+```
+
+La commande demande un mot de passe et produit deux fichiers. Ensuite :
+
+1. Copier le contenu de `~/.tauri/papyx.key.pub` dans `plugins.updater.pubkey`
+   de `src-tauri/tauri.conf.json` (il y a un `REPLACE_WITH_…` à la place).
+2. Dans **Settings → Secrets and variables → Actions** du dépôt GitHub, créer
+   `TAURI_SIGNING_PRIVATE_KEY` (le contenu de `~/.tauri/papyx.key`) et
+   `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`.
+3. Sauvegarder la clé privée ailleurs qu'à un seul endroit. **Elle est
+   irremplaçable** : sans elle, plus aucune mise à jour ne peut être signée, et
+   les copies déjà installées n'accepteront jamais un paquet signé avec une
+   nouvelle clé — il faudrait redistribuer l'application à la main.
+
+### Publier une version
+
+```bash
+npm run set-version 1.1.0    # les quatre fichiers qui portent le numéro
+git commit -am "Papyx 1.1.0"
+git tag v1.1.0 && git push origin main v1.1.0
+```
+
+Le workflow compile, signe, et publie installeurs et `latest.json` sur la
+release. La release doit rester ni brouillon ni préversion : le manifeste est lu
+à l'adresse `/releases/latest/download/latest.json`.
 
 ## Parcours
 
@@ -94,9 +157,10 @@ Tout le traitement PDF vit dans le front, dans la webview :
   n'est chargé qu'au premier fichier HEIC rencontré.
 
 Le Rust (`src-tauri/`) ne fait que le strict minimum qu'une page web ne sait pas
-faire : boîtes de dialogue natives, lecture/écriture des fichiers choisis, et
-« afficher dans le dossier ». Aucune commande ne prend d'URL, il n'y a pas de
-client HTTP dans le binaire.
+faire : boîtes de dialogue natives, lecture/écriture des fichiers choisis,
+« afficher dans le dossier », et la mise à jour. Aucune commande ne prend d'URL
+depuis le front : la seule adresse que le binaire connaisse est celle du
+manifeste de version, écrite en dur dans `tauri.conf.json`.
 
 Le dépôt de fichiers passe par l'API HTML5 plutôt que par le gestionnaire natif
 de Tauri : sous Windows, ce dernier désactive le glisser-déposer *dans* la page,

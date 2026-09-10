@@ -77,12 +77,13 @@
     }
   },
   "dropzone": {
-    "idlePdf": "Déposez un PDF ici, ou cliquez pour parcourir",
-    "idlePdfs": "Déposez vos PDF ici, ou cliquez pour parcourir",
-    "idleImages": "Déposez vos images ici, ou cliquez pour parcourir",
+    "idlePdf": "Déposez un PDF ici",
+    "idlePdfs": "Déposez vos PDF ici",
+    "idleImages": "Déposez vos images ici",
     "active": "Relâchez pour ajouter",
     "reading": "Lecture…",
-    "idleAny": "Déposez vos PDF ou images ici, ou cliquez pour parcourir"
+    "idleAny": "Déposez vos PDF ou images ici",
+    "browse": "Parcourir"
   },
   "files": {
     "locked": "Protégé par mot de passe",
@@ -207,7 +208,7 @@
     "languageSystem": "Système",
     "output": "Sortie",
     "about": "À propos",
-    "aboutLocal": "Papyx traite tout localement, dans la fenêtre de l'application. Aucune requête réseau n'est effectuée.",
+    "aboutLocal": "Papyx traite tout localement, dans la fenêtre de l'application. Vos documents ne quittent jamais votre machine — la seule requête effectuée est celle qui demande à GitHub le numéro de la dernière version, et elle peut être désactivée ci-dessus.",
     "version": "Version {{version}}",
     "saveMode": "Enregistrement",
     "saveAsk": "Demander à chaque fois",
@@ -215,7 +216,24 @@
     "saveFixed": "Dossier fixe",
     "saveFixedHint": "Les résultats sont écrits directement dans un dossier choisi une fois pour toutes.",
     "folder": "Dossier",
-    "changeFolder": "Modifier"
+    "changeFolder": "Modifier",
+    "updates": "Mises à jour",
+    "autoUpdate": "Vérifier au démarrage",
+    "autoUpdateHint": "Cherche une nouvelle version à l'ouverture de l'application. Seul un numéro de version est demandé — rien sur vous ni sur vos fichiers n'est envoyé.",
+    "updateNow": "Vérifier maintenant"
+  },
+  "update": {
+    "available": "Papyx {{version}} est disponible",
+    "availableBody": "L'installation prend quelques secondes et redémarre l'application. Vos réglages et vos dossiers sont conservés.",
+    "installingBody": "Téléchargement de la nouvelle version. Papyx redémarrera tout seul une fois installée.",
+    "install": "Installer",
+    "installing": "Installation…",
+    "later": "Plus tard",
+    "checkNow": "Vérifier maintenant",
+    "checking": "Vérification…",
+    "current": "Papyx est à jour.",
+    "failed": "Impossible de joindre le serveur de mises à jour.",
+    "chip": "Mise à jour"
   },
   "compress": {
     "warning": "Les pages sont re-rendues en images : le fichier s'allège, mais le texte cesse d'être sélectionnable et les annotations disparaissent."

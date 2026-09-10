@@ -1,6 +1,8 @@
 import { AlertTriangle, Minimize2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Row } from "@/components/ui/Row";
+import { INSET } from "@/components/ui/styles";
+import { cn } from "@/lib/cn";
 import { Select } from "@/components/ui/Select";
 import { Slider } from "@/components/ui/Field";
 import { Toggle } from "@/components/ui/Toggle";
@@ -22,7 +24,7 @@ function CompressOptionsPanel({ value, onChange }: OptionsProps<Options>) {
       {/* Rasterising is the only operation here that throws information away.
           Saying so next to the controls beats burying it in the tool blurb the
           user read once, three screens ago. */}
-      <div className="flex items-start gap-3 rounded-xl bg-elevate-1 px-4 py-3">
+      <div className={cn(INSET, "flex items-start gap-3 px-4 py-3")}>
         <AlertTriangle className="w-4 h-4 text-badge-fg flex-shrink-0 mt-0.5" />
         <p className="text-sm text-muted leading-relaxed">{t("compress.warning")}</p>
       </div>

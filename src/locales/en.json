@@ -77,12 +77,13 @@
     }
   },
   "dropzone": {
-    "idlePdf": "Drop a PDF here, or click to browse",
-    "idlePdfs": "Drop your PDFs here, or click to browse",
-    "idleImages": "Drop your images here, or click to browse",
+    "idlePdf": "Drop a PDF here",
+    "idlePdfs": "Drop your PDFs here",
+    "idleImages": "Drop your images here",
     "active": "Release to add",
     "reading": "Reading…",
-    "idleAny": "Drop PDFs or images here, or click to browse"
+    "idleAny": "Drop PDFs or images here",
+    "browse": "Browse"
   },
   "files": {
     "locked": "Password protected",
@@ -207,7 +208,7 @@
     "languageSystem": "System",
     "output": "Output",
     "about": "About",
-    "aboutLocal": "Papyx does all of its work locally, inside the app window. It makes no network requests.",
+    "aboutLocal": "Papyx does all of its work locally, inside the app window. Your documents never leave your machine — the only request it ever makes is asking GitHub for the latest version number, and that can be turned off above.",
     "version": "Version {{version}}",
     "saveMode": "Saving",
     "saveAsk": "Ask every time",
@@ -215,7 +216,24 @@
     "saveFixed": "Fixed folder",
     "saveFixedHint": "Results are written straight into a folder you pick once.",
     "folder": "Folder",
-    "changeFolder": "Change"
+    "changeFolder": "Change",
+    "updates": "Updates",
+    "autoUpdate": "Check on startup",
+    "autoUpdateHint": "Looks for a new version when the app opens. Only a version number is requested — nothing about you or your files is sent.",
+    "updateNow": "Check now"
+  },
+  "update": {
+    "available": "Papyx {{version}} is available",
+    "availableBody": "Installing takes a few seconds and restarts the app. Your settings and folders are kept.",
+    "installingBody": "Downloading the new version. Papyx will restart on its own once it is installed.",
+    "install": "Install",
+    "installing": "Installing…",
+    "later": "Later",
+    "checkNow": "Check now",
+    "checking": "Checking…",
+    "current": "Papyx is up to date.",
+    "failed": "Could not reach the update server.",
+    "chip": "Update"
   },
   "compress": {
     "warning": "Pages are re-rendered as images: the file gets smaller, but the text stops being selectable and annotations are lost."

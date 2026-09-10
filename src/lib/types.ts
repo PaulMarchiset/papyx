@@ -66,10 +66,21 @@ export interface Settings {
   language: "system" | "fr" | "en";
   /** When set, outputs are written straight here instead of prompting. */
   outputDir: string | null;
+  /**
+   * Look for a new version on startup. On by default: an update nobody is told
+   * about is an update nobody installs, and the check sends nothing about the
+   * user or their documents (see services/updater.ts).
+   */
+  autoUpdate: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  theme: "system",
+  // Light, not "system": the interface is drawn on white — the paper the
+  // thumbnails sit on, the surfaces, the logo — and that is what a first launch
+  // should show. Dark stays a choice someone makes rather than one their OS
+  // makes for them, and "system" is still there for whoever wants it.
+  theme: "light",
   language: "system",
   outputDir: null,
+  autoUpdate: true,
 };

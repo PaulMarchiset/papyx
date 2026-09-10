@@ -2,6 +2,7 @@ import { useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Collapse } from "@/components/ui/Collapse";
 import { Segmented } from "@/components/ui/Segmented";
+import { BTN_QUIET } from "@/components/ui/styles";
 import { formatPageRanges, parsePageRanges } from "@/lib/pageRanges";
 import { useThumbnails } from "@/lib/useThumbnails";
 import { cn } from "@/lib/cn";
@@ -125,7 +126,7 @@ export function PageSelector({
                 aria-pressed={selected.has(page)}
                 onClick={(event) => click(page, event.shiftKey)}
                 className={cn(
-                  "rounded-lg border transition-colors",
+                  "rounded-xl border transition-colors",
                   withThumbnails ? "p-1.5" : "px-2 py-2.5",
                   selected.has(page)
                     ? "border-accent bg-accent/10"
@@ -133,7 +134,7 @@ export function PageSelector({
                 )}
               >
                 {withThumbnails && (
-                  <div className="aspect-[1/1.414] rounded bg-paper overflow-hidden flex items-center justify-center">
+                  <div className="aspect-[1/1.414] rounded-md bg-paper overflow-hidden flex items-center justify-center">
                     {urls[page - 1] ? (
                       <img
                         src={urls[page - 1]}
@@ -177,7 +178,7 @@ function Shortcut({ children, onClick }: { children: React.ReactNode; onClick: (
     <button
       type="button"
       onClick={onClick}
-      className="px-2.5 py-1.5 rounded-md border border-border text-xs text-subtle hover:text-fg hover:border-border-hover transition-colors"
+      className={BTN_QUIET}
     >
       {children}
     </button>

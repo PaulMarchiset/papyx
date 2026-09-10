@@ -1,7 +1,7 @@
 import { cn } from "@/lib/cn";
 
 const INPUT_BASE =
-  "rounded-md border border-border-strong bg-elevate-1 px-3 py-2 text-sm text-fg " +
+  "rounded-xl border border-border-strong bg-elevate-1 px-3.5 py-2 text-sm text-fg " +
   "outline-none placeholder:text-muted focus:border-accent transition-colors";
 
 interface TextFieldProps {
@@ -107,7 +107,7 @@ export function ColorField({ value, onChange }: ColorFieldProps) {
         type="color"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-9 h-9 rounded-md border border-border-strong bg-transparent cursor-pointer p-1"
+        className="w-9 h-9 rounded-lg border border-border-strong bg-transparent cursor-pointer p-1"
       />
       <TextField value={value} onChange={onChange} mono className="w-28" />
     </div>

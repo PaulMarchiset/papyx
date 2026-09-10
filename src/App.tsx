@@ -3,13 +3,17 @@ import { Settings as SettingsIcon, ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Home } from "@/components/Home";
 import { SettingsPanel } from "@/components/Settings";
+import { UpdateChip } from "@/components/UpdateChip";
+import { UpdatePrompt } from "@/components/UpdatePrompt";
 import { WindowControls } from "@/components/WindowControls";
 import { PapyxLogo } from "@/components/icons/PapyxLogo";
 import { Modal } from "@/components/ui/Modal";
 import { PILL_ICON } from "@/components/ui/pill";
+import { BTN_PRIMARY, BTN_SECONDARY } from "@/components/ui/styles";
 import { findTool, TOOLS } from "@/components/tools/registry";
 import type { ChainTarget } from "@/components/ResultCard";
 import { SettingsProvider } from "@/lib/settingsContext";
+import { UpdaterProvider } from "@/lib/updaterContext";
 import { useFileDrop } from "@/lib/useFileDrop";
 import { useJob } from "@/lib/useJob";
 import { useSourceFiles } from "@/lib/useSourceFiles";
@@ -151,14 +155,16 @@ function AppShell() {
         <div data-tauri-drag-region className="flex-1 self-stretch" />
 
         <div className="flex items-center gap-3 pr-3">
+          {/* Guarded like every other way out of a finished run: installing an
+              update restarts the app, and an unsaved result would go with it. */}
+          <UpdateChip onOpen={guard} />
+
           <button
             type="button"
             onClick={() => guard(() => setShowSettings((current) => !current))}
             className={cn(
-              "flex items-center gap-2 px-4 py-2 rounded-md border text-sm transition-colors",
-              showSettings
-                ? "border-transparent text-fg bg-surface-2"
-                : "border-border-strong text-fg hover:bg-elevate-2",
+              BTN_SECONDARY,
+              showSettings && "border-transparent bg-surface-2 hover:bg-surface-2",
             )}
           >
             <SettingsIcon className="w-4 h-4" />
@@ -202,6 +208,8 @@ function AppShell() {
         </div>
       </main>
 
+      <UpdatePrompt />
+
       {pending && (
         <Modal
           title={t("unsaved.title")}
@@ -211,7 +219,7 @@ function AppShell() {
           <button
             type="button"
             onClick={() => setPending(null)}
-            className="px-3 py-2 rounded-md border border-border-strong text-sm text-fg hover:bg-elevate-2 transition-colors"
+            className={BTN_SECONDARY}
           >
             {t("common.cancel")}
           </button>
@@ -223,7 +231,7 @@ function AppShell() {
               job.reset();
               action();
             }}
-            className="px-3 py-2 rounded-md border border-border-strong text-sm text-muted hover:text-fg transition-colors"
+            className={cn(BTN_SECONDARY, "border-transparent text-muted hover:text-fg")}
           >
             {t("unsaved.discard")}
           </button>
@@ -236,7 +244,7 @@ function AppShell() {
               job.reset();
               action();
             }}
-            className="px-5 py-2.5 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent/85 transition-colors"
+            className={BTN_PRIMARY}
           >
             {t("unsaved.save")}
           </button>
@@ -249,7 +257,9 @@ function AppShell() {
 export default function App() {
   return (
     <SettingsProvider>
-      <AppShell />
+      <UpdaterProvider>
+        <AppShell />
+      </UpdaterProvider>
     </SettingsProvider>
   );
 }

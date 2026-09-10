@@ -9,7 +9,7 @@
  * Do not add an `h-*` class — it would re-centre the text and undo this.
  */
 export const PILL_BASE =
-  "flex-shrink-0 inline-flex items-center px-2 pt-[7px] pb-[3px] rounded-md text-xs leading-none";
+  "flex-shrink-0 inline-flex items-center px-2.5 pt-[7px] pb-[3px] rounded-full text-xs leading-none";
 
 /**
  * The variant for capsules that carry an icon. An icon is a *box*, not a run of
@@ -19,4 +19,4 @@ export const PILL_BASE =
  * lines them up, and is roomier so the pair doesn't feel shrink-wrapped.
  */
 export const PILL_ICON =
-  "flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs leading-none";
+  "flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs leading-none";

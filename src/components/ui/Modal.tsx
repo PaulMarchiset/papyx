@@ -3,16 +3,19 @@ import { useEffect } from "react";
 interface Props {
   title: string;
   description?: string;
+  /** Optional block between the description and the actions. */
+  body?: React.ReactNode;
+  /** The actions, laid out in a row along the bottom edge. */
   children: React.ReactNode;
   onClose: () => void;
 }
 
 /**
  * A small centred dialog. Hand-rolled rather than pulled from a library: the
- * app needs exactly one of these (the unsaved-result prompt), and it needs to
- * match the surface tokens.
+ * app needs two of these (the unsaved-result prompt and the update prompt), and
+ * they need to match the surface tokens.
  */
-export function Modal({ title, description, children, onClose }: Props) {
+export function Modal({ title, description, body, children, onClose }: Props) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -30,13 +33,14 @@ export function Modal({ title, description, children, onClose }: Props) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-2xl bg-surface px-6 py-6 space-y-4 shadow-xl shadow-black/40"
+        className="w-full max-w-md rounded-3xl bg-surface px-7 py-6 space-y-4 shadow-pop"
         onClick={(event) => event.stopPropagation()}
       >
         <div>
           <h3 className="text-base font-semibold text-fg">{title}</h3>
           {description && <p className="text-sm text-muted mt-2 leading-relaxed">{description}</p>}
         </div>
+        {body}
         <div className="flex flex-wrap items-center justify-end gap-3 pt-1">{children}</div>
       </div>
     </div>

@@ -19,7 +19,7 @@ export function AddMoreButton({ multiple, onClick }: Props) {
     <button
       type="button"
       onClick={onClick}
-      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-border text-sm text-muted hover:text-fg hover:border-border-hover transition-colors"
+      className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-dashed border-border text-sm text-muted hover:text-fg hover:border-border-hover transition-colors"
     >
       {multiple ? <Plus className="w-4 h-4" /> : <RefreshCw className="w-4 h-4" />}
       {multiple ? t("common.addFiles") : t("common.changeFile")}

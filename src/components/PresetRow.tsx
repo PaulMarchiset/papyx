@@ -40,7 +40,7 @@ export function PresetRow({ presets, options, onApply }: Props) {
             onClick={() => onApply(preset.patch)}
             aria-pressed={active}
             className={cn(
-              "px-3 py-1.5 rounded-md border text-sm transition-colors",
+              "px-3.5 py-1.5 rounded-full border text-sm transition-colors",
               active
                 ? "border-accent/60 bg-accent/10 text-fg"
                 : "border-border text-subtle hover:text-fg hover:border-border-hover",

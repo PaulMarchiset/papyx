@@ -123,8 +123,14 @@ test("offers every page by default, and a selection on demand", async ({ page })
 });
 
 test("follows the system dark theme", async ({ page }) => {
+  // The default is light now, so following the system is a setting like any
+  // other: seed it, then emulate the system that setting defers to.
+  await page.addInitScript(() =>
+    localStorage.setItem("papyx.settings", JSON.stringify({ theme: "system" })),
+  );
   await page.emulateMedia({ colorScheme: "dark" });
   await page.goto("/");
+  await expect(page.locator("html")).toHaveClass(/dark/);
   await openToolWithFiles(page, /Filigrane/, ["tests/fixtures/alpha.pdf"]);
   // The watermark text field is prefilled, which also proves the panel mounted.
   await expect(page.getByRole("textbox").first()).toHaveValue("CONFIDENTIEL");
@@ -245,28 +251,24 @@ test("says plainly that a result is not on disk yet", async ({ page }) => {
   await page.screenshot({ path: "tests/screenshots/result.png" });
 });
 
-test("sits the wordmark on the same baseline as the badge beside it", async ({ page }) => {
+test("stands the mark on the wordmark's baseline", async ({ page }) => {
   await page.goto("/");
   const delta = await page.evaluate(() => {
     const svg = document.querySelector("header svg") as SVGSVGElement;
-    const box = svg.getBoundingClientRect();
-    const viewBox = svg.viewBox.baseVal;
-    // Flat bottom of the P/a/x glyphs in the artwork's own units.
-    const baseline =
-      box.top + (332.934 - viewBox.y) * (box.height / viewBox.height);
+    const wordmark = document.querySelector("header .font-serif") as HTMLElement;
 
-    const pill = document.querySelector("header span.bg-badge-bg") as HTMLElement;
-    const text = [...pill.childNodes].find((node) => node.nodeType === 3) as Text;
-    const range = document.createRange();
-    range.selectNode(text);
-    const style = getComputedStyle(pill);
-    const context = document.createElement("canvas").getContext("2d")!;
-    context.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
-    const pillBaseline =
-      range.getBoundingClientRect().top +
-      context.measureText(text.data).fontBoundingBoxAscent;
+    // A zero-size inline-block on the baseline: its bottom edge *is* the
+    // baseline of the line it sits in. Deliberately not a canvas ascent — that
+    // is a font metric, it rounds, and it answers differently before the
+    // bundled face has loaded.
+    const strut = document.createElement("span");
+    strut.style.cssText = "display:inline-block;width:0;height:0;vertical-align:baseline";
+    wordmark.appendChild(strut);
+    const baseline = strut.getBoundingClientRect().bottom;
+    strut.remove();
 
-    return Math.abs(baseline - pillBaseline);
+    // The viewBox is cropped to the ink, so the box's bottom is the P's foot.
+    return Math.abs(svg.getBoundingClientRect().bottom - baseline);
   });
   expect(delta).toBeLessThanOrEqual(0.5);
 });
@@ -323,7 +325,7 @@ test("swaps home and settings without remounting the open tool", async ({ page }
 test("grows a conditional option into place instead of inserting it", async ({ page }) => {
   await page.goto("/");
   await openToolWithFiles(page, /PDF → Images/, ["tests/fixtures/alpha.pdf"]);
-  const card = page.locator(".scroll-mt-4 .rounded-2xl").first();
+  const card = page.locator(".scroll-mt-4 [data-card]").first();
   // The panel is still filling in (page count, thumbnails) for a moment after
   // it opens, so the baseline is whatever height it comes to rest at.
   const settled = async () => {
@@ -341,7 +343,7 @@ test("grows a conditional option into place instead of inserting it", async ({ p
   // "Impression" is the JPEG preset, which is what brings the quality row in.
   await page.getByRole("button", { name: "Impression" }).click();
   const samples: number[] = await page.evaluate(async () => {
-    const element = document.querySelector(".scroll-mt-4 .rounded-2xl") as HTMLElement;
+    const element = document.querySelector(".scroll-mt-4 [data-card]") as HTMLElement;
     const heights: number[] = [];
     for (let i = 0; i < 8; i++) {
       heights.push(element.getBoundingClientRect().height);

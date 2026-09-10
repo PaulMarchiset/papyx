@@ -71,7 +71,7 @@ export function PageGrid({ items, urls, loading, selected, onToggle, onReorder }
               onClick={() => onToggle(item.page)}
               aria-pressed={selected.has(item.page)}
               className={cn(
-                "w-full rounded-xl border p-2 text-left transition-colors cursor-grab active:cursor-grabbing",
+                "w-full rounded-2xl border p-2 text-left transition-colors cursor-grab active:cursor-grabbing",
                 selected.has(item.page)
                   ? "border-accent bg-accent/5"
                   : "border-border hover:border-border-hover",

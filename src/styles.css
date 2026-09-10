@@ -35,6 +35,20 @@
   /* Page thumbnails always sit on white paper, whatever the app theme. */
   --color-paper: #ffffff;
 
+  /* Squircle geometry, and the scale everything is cut to. The radii are
+     roughly double Tailwind's defaults because a superellipse corner reads
+     tighter than a circular one of the same radius: its curvature starts later,
+     so the straight edge runs further into the corner. The rule at the foot of
+     this file hands every radius-carrying element `corner-shape: squircle`;
+     these values are what it is given to work with. */
+  --radius-xs: 0.375rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+
   /* One easing for the whole app: a cubic ease-out. Deliberately not one of
      the sharper expo/quint curves — those spend nine tenths of the distance in
      the first fifth of the time, which reads as a snap with a long tail rather
@@ -48,6 +62,15 @@
   --font-serif: "Sirba", Georgia, "Times New Roman", serif;
   --font-sans: "PP Mori", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* Cards sit *on* the background rather than being cut out of it: a hairline
+   of contact shadow, then a wide and very soft one. Deliberately outside
+   @theme — Tailwind would mint a `shadow-card` utility with the value inlined,
+   and this has to follow the light/dark flip below, which only a var() can. */
+:root {
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 30%), 0 18px 40px -24px rgb(0 0 0 / 70%);
+  --shadow-pop: 0 10px 34px -10px rgb(0 0 0 / 65%);
 }
 
 /* Light theme — applied when `.light` is on <html> (see settingsContext). The
@@ -78,6 +101,12 @@
   --color-elevate-4: rgb(0 0 0 / 9%);
   --color-elevate-5: rgb(0 0 0 / 12%);
   --color-elevate-6: rgb(0 0 0 / 16%);
+
+  /* Shadows carry the elevation here, where the surfaces are close in value:
+     lighter and tighter than the dark theme's, which would otherwise read as
+     smudges under every card. */
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 5%), 0 14px 34px -22px rgb(0 0 0 / 30%);
+  --shadow-pop: 0 12px 32px -10px rgb(0 0 0 / 22%);
 
   color-scheme: light;
 }
@@ -210,6 +239,25 @@ button:active:not(:disabled) {
    break that seam. */
 button[data-flat]:active:not(:disabled) {
   transform: none;
+}
+
+/* Squircle, everywhere there is a corner. `corner-shape` is simply ignored by
+   engines that do not have it, which leaves the plain rounded rectangle
+   underneath, so this is safe to state unconditionally rather than behind an
+   @supports. Pills are the deliberate exception: a superellipse drawn on a
+   9999px radius is a lozenge, not a capsule, and the genuinely round things —
+   a toggle knob, a spinner, the progress bar — have to stay round. */
+[class*="rounded-"]:not([class*="rounded-full"]) {
+  corner-shape: squircle;
+}
+
+/* The two elevations, as classes rather than Tailwind utilities: see the
+   :root block above for why the value cannot be inlined. */
+.shadow-card {
+  box-shadow: var(--shadow-card);
+}
+.shadow-pop {
+  box-shadow: var(--shadow-pop);
 }
 
 /* Someone who has asked their system for less movement gets none of it: the

@@ -3,6 +3,7 @@ import { FileText, GripVertical, ImageIcon, Lock, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { formatBytes } from "@/lib/format";
 import { PILL_BASE, PILL_ICON } from "@/components/ui/pill";
+import { BTN_ICON, CARD, TILE } from "@/components/ui/styles";
 import { TextField } from "@/components/ui/Field";
 import { UploadIcon } from "@/components/icons/UploadIcon";
 import { useFileThumbnails } from "@/lib/useFileThumbnails";
@@ -68,11 +69,11 @@ export function FileTray({
   };
 
   return (
-    <div className="w-full rounded-2xl bg-surface overflow-hidden">
+    <div className={cn(CARD, "w-full overflow-hidden")}>
       {files.length > 1 && (
         <div className="relative px-5 pt-5 pb-4 cursor-pointer group" onClick={onAdd}>
           <div className="flex items-start gap-4 pr-28">
-            <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-accent/15 flex items-center justify-center text-accent">
+            <div className={cn(TILE, "flex-shrink-0 w-10 h-10 bg-accent/15 text-accent")}>
               <UploadIcon size={18} />
             </div>
             <div className="min-w-0">
@@ -96,7 +97,12 @@ export function FileTray({
               </div>
             </div>
           </div>
-          <span className="absolute top-3 right-4 text-xs text-muted group-hover:text-subtle transition-colors">
+          <span
+            className={cn(
+              PILL_ICON,
+              "absolute top-4 right-4 bg-elevate-2 text-muted group-hover:text-fg transition-colors",
+            )}
+          >
             {loading ? t("dropzone.reading") : t("common.addFiles")}
           </span>
         </div>
@@ -180,7 +186,10 @@ export function FileTray({
                     event.stopPropagation();
                     onRemove(file.id);
                   }}
-                  className="flex-shrink-0 ml-1 p-1.5 rounded-md text-muted opacity-0 group-hover/row:opacity-100 hover:text-red-400 transition-all"
+                  className={cn(
+                    BTN_ICON,
+                    "ml-1 p-1.5 opacity-0 group-hover/row:opacity-100 hover:text-red-400",
+                  )}
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -208,7 +217,7 @@ export function FileTray({
 /** First page (or the image itself) on a paper-white card, icon until it lands. */
 function Preview({ file, url }: { file: SourceFile; url?: string }) {
   return (
-    <span className="flex-shrink-0 w-8 h-10 rounded-[4px] overflow-hidden bg-paper border border-border-soft flex items-center justify-center text-muted">
+    <span className="flex-shrink-0 w-8 h-10 rounded-[7px] overflow-hidden bg-paper border border-border-soft flex items-center justify-center text-muted">
       {url ? (
         <img src={url} alt="" draggable={false} className="w-full h-full object-cover" />
       ) : file.kind === "pdf" ? (

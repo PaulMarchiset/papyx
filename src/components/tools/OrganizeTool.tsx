@@ -141,7 +141,7 @@ function Chip({ label, onClick }: { label: string; onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="px-3 py-1.5 rounded-md border border-border-strong text-sm text-fg hover:bg-elevate-2 transition-colors"
+      className="px-3.5 py-1.5 rounded-full border border-border-strong text-sm text-fg hover:bg-elevate-2 hover:border-border-hover transition-colors"
     >
       {label}
     </button>
@@ -166,7 +166,7 @@ function Icon({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="p-2 rounded-md border border-border-strong text-fg hover:bg-elevate-2 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+      className="p-2 rounded-full border border-border-strong text-fg hover:bg-elevate-2 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
     >
       {children}
     </button>

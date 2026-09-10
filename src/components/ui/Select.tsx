@@ -65,8 +65,8 @@ export function Select<T extends string>({
         disabled={disabled}
         onClick={() => setOpen((current) => !current)}
         className={cn(
-          "flex w-full items-center justify-between gap-2 min-w-36 pl-3 pr-2.5 py-2 text-sm",
-          "rounded-lg border border-border-soft text-fg outline-none transition-colors",
+          "flex w-full items-center justify-between gap-2 min-w-36 pl-4 pr-3 py-2 text-sm",
+          "rounded-full border border-border-soft text-fg outline-none transition-colors",
           "hover:bg-elevate-2 focus:border-accent/50 cursor-pointer",
           disabled && "opacity-40 cursor-not-allowed hover:bg-transparent",
         )}
@@ -86,7 +86,7 @@ export function Select<T extends string>({
         <div
           role="listbox"
           className={cn(
-            "absolute right-0 z-30 mt-1 min-w-full rounded-xl bg-surface shadow-lg shadow-black/40",
+            "absolute right-0 z-30 mt-1.5 min-w-full rounded-2xl bg-surface shadow-pop",
             // Roomy menus share a floor width so the dropdowns read as one
             // family instead of each hugging its longest option.
             roomy ? "min-w-88 p-1.5" : "p-1",
@@ -105,7 +105,7 @@ export function Select<T extends string>({
                   setOpen(false);
                 }}
                 className={cn(
-                  "flex w-full flex-col items-start rounded-lg px-3 text-left transition-colors",
+                  "flex w-full flex-col items-start rounded-xl px-3 text-left transition-colors",
                   roomy ? "gap-1 py-2.5" : "py-1.5 whitespace-nowrap",
                   // Selection is carried by the filled card alone — no tick,
                   // no border.

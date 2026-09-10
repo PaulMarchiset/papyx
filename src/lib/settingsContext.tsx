@@ -33,6 +33,30 @@ function load(): Settings {
   }
 }
 
+/** Which of the two palettes a theme setting resolves to, right now. */
+function isDark(theme: Settings["theme"]): boolean {
+  return (
+    theme === "dark" ||
+    (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
+  );
+}
+
+/**
+ * Paints the stored theme onto <html> before React's first render.
+ *
+ * index.html ships `.dark`, so without this a light user gets the whole
+ * interface cross-fading from dark to light on the first frame — every colour
+ * transition in the app firing at once, which is exactly the arriving-interface
+ * effect the rest of the app goes out of its way not to have. Called from
+ * main.tsx rather than written inline in index.html, which would mean carving a
+ * hash or 'unsafe-inline' out of the production CSP for it.
+ */
+export function applyStoredAppearance(): void {
+  const dark = isDark(load().theme);
+  document.documentElement.classList.toggle("dark", dark);
+  document.documentElement.classList.toggle("light", !dark);
+}
+
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<Settings>(load);
 
@@ -57,8 +81,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     const root = document.documentElement;
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const apply = () => {
-      const dark =
-        settings.theme === "dark" || (settings.theme === "system" && media.matches);
+      const dark = isDark(settings.theme);
       if (previousDark.current !== null && previousDark.current !== dark) {
         root.classList.add("theme-transition");
         if (transitionTimer.current) clearTimeout(transitionTimer.current);

@@ -1,6 +1,6 @@
 import { Download, FolderOpen, Loader2, Play, RotateCcw, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { cn } from "@/lib/cn";
+import { BTN_PRIMARY, BTN_SECONDARY } from "@/components/ui/styles";
 import type { JobState } from "@/lib/useJob";
 
 interface Props {
@@ -109,11 +109,7 @@ function Primary({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={cn(
-        "flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-medium",
-        "bg-accent text-white transition-colors",
-        "hover:bg-accent/85 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-accent",
-      )}
+      className={BTN_PRIMARY}
     >
       {icon}
       {children}
@@ -134,7 +130,7 @@ function Secondary({
     <button
       type="button"
       onClick={onClick}
-      className="flex-shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-md border border-border-strong text-sm text-fg hover:bg-elevate-2 transition-colors"
+      className={BTN_SECONDARY}
     >
       {icon}
       {children}

@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { TOOLS } from "@/components/tools/registry";
+import { CARD, TILE } from "@/components/ui/styles";
 import { cn } from "@/lib/cn";
 import type { SourceFile, ToolId } from "@/lib/types";
 
@@ -62,15 +63,15 @@ export function ToolGrid({ files, selected, onSelect }: Props) {
               onClick={() => onSelect(tool.id)}
               title={enabled ? undefined : t(`tools.needs.${tool.accept}`)}
               className={cn(
-                "group text-left rounded-2xl bg-surface px-5 py-6 border transition-colors",
-                enabled
-                  ? "border-transparent hover:border-border-hover"
-                  : "border-transparent opacity-40 cursor-not-allowed",
+                CARD,
+                "group text-left px-5 py-6 border border-transparent transition-colors",
+                enabled ? "hover:border-border-hover" : "opacity-40 cursor-not-allowed",
               )}
             >
               <span
                 className={cn(
-                  "inline-flex items-center justify-center w-11 h-11 rounded-xl mb-4 transition-colors",
+                  TILE,
+                  "w-12 h-12 mb-4 transition-colors",
                   enabled
                     ? "bg-accent/15 text-accent group-hover:bg-accent group-hover:text-white"
                     : "bg-elevate-3 text-muted",
@@ -123,11 +124,11 @@ function Chip({
       onClick={() => onSelect(tool.id)}
       title={enabled ? t(`tools.${tool.id}.desc`) : t(`tools.needs.${tool.accept}`)}
       className={cn(
-        "flex items-center gap-3 rounded-xl px-4 py-3 border transition-colors",
+        "flex items-center gap-3 rounded-2xl px-4 py-3 border transition-colors",
         selected
           ? "bg-accent/10 border-accent/60"
           : enabled
-            ? "bg-surface border-transparent hover:border-border-hover"
+            ? "bg-surface border-transparent shadow-card hover:border-border-hover"
             : "bg-surface border-transparent opacity-40 cursor-not-allowed",
       )}
     >

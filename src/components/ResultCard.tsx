@@ -3,6 +3,8 @@ import type { LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { formatBytes, formatDelta, formatDuration } from "@/lib/format";
 import { reveal } from "@/lib/services/fileSystem";
+import { BTN_QUIET, BTN_SECONDARY, CARD, INSET, TILE } from "@/components/ui/styles";
+import { cn } from "@/lib/cn";
 import type { JobState } from "@/lib/useJob";
 import type { ToolId } from "@/lib/types";
 
@@ -34,26 +36,28 @@ export function ResultCard({ state, preview, showsDelta, chain, onChain }: Props
   const many = state.outputs.length > 1;
 
   return (
-    <div className="rounded-2xl bg-surface px-6 py-6 space-y-5">
-      <div>
-        <div className="flex items-center gap-2 text-fg">
-          <Check className="w-4 h-4 text-accent" />
-          <span className="text-sm font-medium">
+    <div className={cn(CARD, "px-6 py-6 space-y-5")}>
+      <div className="flex items-center gap-3">
+        <span className={cn(TILE, "flex-shrink-0 w-10 h-10 bg-accent/15 text-accent")}>
+          <Check className="w-5 h-5" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-fg">
             {t("result.outputs", { count: state.outputs.length })}
-          </span>
+          </p>
+          <p className="text-sm text-muted mt-0.5">
+            {showsDelta && state.inputSize > 0
+              ? formatDelta(state.inputSize, state.outputSize)
+              : formatBytes(state.outputSize)}
+            {" · "}
+            {formatDuration(state.elapsedMs)}
+          </p>
         </div>
-        <p className="text-sm text-muted mt-1">
-          {showsDelta && state.inputSize > 0
-            ? formatDelta(state.inputSize, state.outputSize)
-            : formatBytes(state.outputSize)}
-          {" · "}
-          {formatDuration(state.elapsedMs)}
-        </p>
       </div>
 
       {/* Where the files went is the question a run leaves behind, so it gets a
           line of its own rather than a corner of the action bar. */}
-      <div className="flex items-start gap-3 rounded-xl bg-elevate-1 px-4 py-3">
+      <div className={cn(INSET, "flex items-start gap-3 px-4 py-3")}>
         <span className="flex-shrink-0 mt-0.5 text-muted">
           {state.saved ? <FolderOpen className="w-4 h-4" /> : <Info className="w-4 h-4" />}
         </span>
@@ -75,7 +79,7 @@ export function ResultCard({ state, preview, showsDelta, chain, onChain }: Props
           <button
             type="button"
             onClick={() => reveal(state.savedTo!)}
-            className="flex-shrink-0 inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-border-strong text-xs text-fg hover:bg-elevate-2 transition-colors"
+            className={cn(BTN_QUIET, "text-fg")}
           >
             {t("common.reveal")}
           </button>
@@ -83,7 +87,7 @@ export function ResultCard({ state, preview, showsDelta, chain, onChain }: Props
       </div>
 
       {state.outputs.length > 0 && (
-        <ul className="rounded-xl bg-elevate-1 divide-y divide-border-subtle max-h-52 overflow-y-auto">
+        <ul className={cn(INSET, "divide-y divide-border-subtle max-h-52 overflow-y-auto")}>
           {state.outputs.map((output) => (
             <li
               key={output.name}
@@ -99,7 +103,12 @@ export function ResultCard({ state, preview, showsDelta, chain, onChain }: Props
       )}
 
       {preview && (
-        <pre className="rounded-xl bg-elevate-1 px-4 py-3 text-xs font-mono text-subtle max-h-52 overflow-auto whitespace-pre-wrap">
+        <pre
+          className={cn(
+            INSET,
+            "px-4 py-3 text-xs font-mono text-subtle max-h-52 overflow-auto whitespace-pre-wrap",
+          )}
+        >
           {preview}
         </pre>
       )}
@@ -113,7 +122,7 @@ export function ResultCard({ state, preview, showsDelta, chain, onChain }: Props
               type="button"
               onClick={() => onChain(id)}
               aria-label={t("result.chainWith", { tool: t(`tools.${id}.name`) })}
-              className="mt-4 inline-flex items-center gap-2 px-3 py-2 rounded-md border border-border text-sm text-subtle hover:text-fg hover:border-border-hover transition-colors"
+              className={cn(BTN_SECONDARY, "mt-4 border-border text-subtle")}
             >
               <Icon className="w-4 h-4" />
               {t(`tools.${id}.name`)}
