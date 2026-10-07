@@ -24,12 +24,43 @@ export interface AvailableUpdate {
 }
 
 /**
+ * A pretend update, for seeing the prompt, the sidebar button and the install
+ * progress without publishing a release: `npm run dev`, then open the app with
+ * `?fake-update` in the address. Development only — `import.meta.env.DEV` is
+ * false in a build, so Vite drops this branch and the shipped app cannot be
+ * talked into it.
+ */
+export function fakeUpdateRequested(): boolean {
+  return (
+    import.meta.env.DEV &&
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).has("fake-update")
+  );
+}
+
+function fakeUpdate(): AvailableUpdate {
+  return {
+    version: "1.1.0",
+    notes: "Pivoter, RAW et TIFF, et une nouvelle mise en page.",
+    install: async (onProgress) => {
+      onProgress(null);
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+      for (let step = 1; step <= 20; step++) {
+        await new Promise((resolve) => setTimeout(resolve, 150));
+        onProgress(step / 20);
+      }
+    },
+  };
+}
+
+/**
  * Resolves to the update if one is waiting, or null if the app is current.
  * Throws when the check itself failed (offline, GitHub down, bad signature) —
  * callers decide how loud that should be, and on a background check it is
  * always silent.
  */
 export async function checkForUpdate(): Promise<AvailableUpdate | null> {
+  if (fakeUpdateRequested()) return fakeUpdate();
   if (!isTauri) return null;
 
   const { check } = await import("@tauri-apps/plugin-updater");
@@ -69,6 +100,12 @@ export async function checkForUpdate(): Promise<AvailableUpdate | null> {
  * then, so this is the step that makes the running process notice.
  */
 export async function relaunchApp(): Promise<void> {
+  if (fakeUpdateRequested()) {
+    // The browser's version of "restart": reload, without the flag, so the
+    // pretend update is gone like a real one would be.
+    window.location.replace(window.location.pathname);
+    return;
+  }
   if (!isTauri) return;
   const { relaunch } = await import("@tauri-apps/plugin-process");
   await relaunch();

@@ -1,48 +1,52 @@
 /**
  * The shapes the interface is cut from.
  *
- * Papyx is drawn with two families and nothing in between. A **card** is a
- * squircle of surface with a soft shadow under it — the panels, the file tray,
- * the result, the dialogs; an **inset** is the same corner, one step darker,
- * for a block that lives *inside* a card. Everything you press is a **pill**:
- * the accent one is the action, the outlined one is everything else, and the
- * round one is an icon on its own.
+ * Papyx is drawn with two families and nothing in between, the same two the
+ * website uses. A **card** is a squircle of surface with a soft shadow under
+ * it — the panels, the result, the dialogs; an **inset** is the same corner,
+ * one step darker, for a block that lives *inside* a card. Everything you press
+ * is a squircle too: the accent one is the action, the filled one is
+ * everything else, and the bare one is an icon on its own.
  *
- * They live here rather than in each component for the reason PILL_BASE does
- * (see ./pill.ts): a radius or a padding that drifts by two pixels between two
- * buttons is invisible in a diff and obvious on screen. The squircle itself is
- * not in these strings — `corner-shape` is applied to every radius in
- * styles.css, so a card is square-cornered nowhere and superelliptical
- * everywhere the engine can draw it.
+ * No borders. Not thin ones — none, on anything you press or anything that
+ * floats. Elevation and fill do that work, which is what makes the app read as
+ * the same object as the site. The one outline left is selection (a ring on a
+ * picked page), because "this one" needs a mark that is not a shade.
+ *
+ * They live here rather than in each component because a radius or a padding
+ * that drifts by two pixels between two buttons is invisible in a diff and
+ * obvious on screen. The squircle itself is not in these strings —
+ * `corner-shape` is applied to every radius in styles.css.
  */
 
-/** A surface that floats: panels, the tray, the result, a dialog. */
+/** A surface that floats: the two workspace panels, a dialog. */
 export const CARD = "rounded-3xl bg-surface shadow-card";
 
 /** A block inside a card — a notice, a list of outputs, a preview. */
 export const INSET = "rounded-2xl bg-elevate-1";
 
-/** The accent square behind a tool's icon. Size is the caller's business. */
-export const TILE = "inline-flex items-center justify-center rounded-2xl";
+/** The square behind an icon. Size and colour are the caller's business. */
+export const TILE = "inline-flex items-center justify-center rounded-xl";
 
-const BTN = "flex-shrink-0 inline-flex items-center justify-center gap-2 transition-colors";
+const BTN =
+  "flex-shrink-0 inline-flex items-center justify-center gap-2 transition-colors " +
+  "disabled:cursor-not-allowed";
 
 /** The action: one per panel, in accent. */
 export const BTN_PRIMARY =
-  `${BTN} rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white ` +
-  "hover:bg-accent/85 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-accent";
+  `${BTN} rounded-xl bg-accent px-5 py-2.5 text-sm font-medium text-white ` +
+  "hover:bg-accent-hover disabled:opacity-40 disabled:hover:bg-accent";
 
-/** Everything else with a label: outlined, same height as the primary. */
+/** Everything else with a label: filled, same height as the primary. */
 export const BTN_SECONDARY =
-  `${BTN} rounded-full border border-border-strong px-4 py-2 text-sm text-fg ` +
-  "hover:bg-elevate-2 hover:border-border-hover " +
-  "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent";
+  `${BTN} rounded-xl bg-elevate-2 px-4 py-2.5 text-sm text-fg ` +
+  "hover:bg-elevate-4 disabled:opacity-30 disabled:hover:bg-elevate-2";
 
-/** The small outlined pill: shortcuts, chained tools, a row's own control. */
+/** The small one: shortcuts, chained tools, a row's own control. */
 export const BTN_QUIET =
-  `${BTN} rounded-full border border-border px-3 py-1.5 text-xs text-subtle ` +
-  "hover:text-fg hover:border-border-hover";
+  `${BTN} rounded-lg bg-elevate-2 px-3 py-1.5 text-xs text-subtle ` +
+  "hover:text-fg hover:bg-elevate-4 disabled:opacity-30";
 
 /** An icon with no label — closing a panel, removing a row. */
 export const BTN_ICON =
-  `${BTN} rounded-full p-2 text-muted hover:text-fg hover:bg-elevate-3`;
+  `${BTN} rounded-lg p-2 text-muted hover:text-fg hover:bg-elevate-3 disabled:opacity-30`;

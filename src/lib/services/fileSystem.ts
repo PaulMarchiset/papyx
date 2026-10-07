@@ -1,6 +1,6 @@
 import { open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
 import { readFile, writeFile } from "@tauri-apps/plugin-fs";
-import { openPath, revealItemInDir } from "@tauri-apps/plugin-opener";
+import { openPath, openUrl, revealItemInDir } from "@tauri-apps/plugin-opener";
 import { join } from "@tauri-apps/api/path";
 import { isTauri } from "@/lib/platform";
 import { IMAGE_EXTENSIONS } from "@/lib/pdf/images";
@@ -160,6 +160,19 @@ export async function saveOutputs(
 export async function reveal(path: string): Promise<void> {
   if (!isTauri) return;
   await revealItemInDir(path);
+}
+
+/**
+ * A web page, in the user's own browser — never inside the app window, which
+ * is not a browser and whose CSP would refuse it anyway. Only on a click: the
+ * app itself still makes no request.
+ */
+export async function openExternal(url: string): Promise<void> {
+  if (!isTauri) {
+    window.open(url, "_blank", "noopener,noreferrer");
+    return;
+  }
+  await openUrl(url);
 }
 
 export async function openInSystem(path: string): Promise<void> {

@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Collapse } from "@/components/ui/Collapse";
 import { Segmented } from "@/components/ui/Segmented";
@@ -6,6 +6,7 @@ import { BTN_QUIET } from "@/components/ui/styles";
 import { formatPageRanges, parsePageRanges } from "@/lib/pageRanges";
 import { useThumbnails } from "@/lib/useThumbnails";
 import { cn } from "@/lib/cn";
+import { ZoomButton, usePreview } from "@/components/Preview";
 import type { SourceFile } from "@/lib/types";
 
 interface Props {
@@ -18,6 +19,11 @@ interface Props {
   pageCount: number;
   /** False where "every page" is not one of the answers (splitting). */
   allowAll?: boolean;
+  /**
+   * Clockwise degrees to show the selected pages turned by — the rotate tool's
+   * preview, so picking a page and seeing it turn are the same click.
+   */
+  turn?: number;
 }
 
 /**
@@ -34,6 +40,20 @@ interface Props {
  */
 const THUMBNAIL_LIMIT = 80;
 
+/** Width over height of the thumbnail box (an A4 sheet). */
+const BOX_ASPECT = 1 / 1.414;
+
+/**
+ * The scale that keeps a quarter-turned thumbnail inside its box, contained
+ * as if it had been rendered that way round: a portrait page turned on its
+ * side has to shrink, a landscape one turned upright gets to grow.
+ */
+function quarterTurnScale(aspect: number): number {
+  return aspect > BOX_ASPECT
+    ? Math.min(aspect, 1 / BOX_ASPECT)
+    : Math.min(BOX_ASPECT, 1 / aspect);
+}
+
 export function PageSelector({
   label,
   value,
@@ -41,6 +61,7 @@ export function PageSelector({
   file,
   pageCount,
   allowAll = true,
+  turn = 0,
 }: Props) {
   const { t } = useTranslation();
   const all = allowAll && value.trim() === "";
@@ -48,6 +69,12 @@ export function PageSelector({
   const { urls } = useThumbnails(withThumbnails ? file : undefined, 120);
   // Anchor for shift-click, so a run can be selected without dragging.
   const lastClicked = useRef<number | null>(null);
+  const preview = usePreview();
+  const enlarge = (page: number) =>
+    file &&
+    preview({ file, page, rotationFor: (n) => (selected.has(n) ? turn : 0) });
+  // Width over height of each loaded thumbnail, for quarterTurnScale.
+  const [aspects, setAspects] = useState<Record<number, number>>({});
 
   const selected = useMemo(
     () => new Set(all ? [] : parsePageRanges(value, Math.max(1, pageCount)).pages),
@@ -119,18 +146,22 @@ export function PageSelector({
             )}
           >
             {pages.map((page) => (
+              <div key={page} className="group/tile relative">
+              {withThumbnails && (
+                <ZoomButton label={t("preview.open")} onClick={() => enlarge(page)} />
+              )}
               <button
-                key={page}
                 type="button"
+                onDoubleClick={() => withThumbnails && enlarge(page)}
                 aria-label={`Page ${page}`}
                 aria-pressed={selected.has(page)}
                 onClick={(event) => click(page, event.shiftKey)}
                 className={cn(
-                  "rounded-xl border transition-colors",
+                  "w-full rounded-xl transition-colors",
                   withThumbnails ? "p-1.5" : "px-2 py-2.5",
                   selected.has(page)
-                    ? "border-accent bg-accent/10"
-                    : "border-border hover:border-border-hover",
+                    ? "bg-badge-bg ring-2 ring-accent"
+                    : "bg-elevate-1 hover:bg-elevate-3",
                 )}
               >
                 {withThumbnails && (
@@ -140,10 +171,30 @@ export function PageSelector({
                         src={urls[page - 1]}
                         alt=""
                         draggable={false}
-                        className="max-w-full max-h-full object-contain"
+                        onLoad={(event) => {
+                          const { naturalWidth, naturalHeight } = event.currentTarget;
+                          if (naturalHeight > 0) {
+                            setAspects((current) => ({
+                              ...current,
+                              [page]: naturalWidth / naturalHeight,
+                            }));
+                          }
+                        }}
+                        style={
+                          turn % 360 !== 0 && selected.has(page)
+                            ? {
+                                transform: `rotate(${turn}deg) scale(${
+                                  turn % 180 !== 0 && aspects[page]
+                                    ? quarterTurnScale(aspects[page])
+                                    : 1
+                                })`,
+                              }
+                            : undefined
+                        }
+                        className="max-w-full max-h-full object-contain transition-transform"
                       />
                     ) : (
-                      <span className="w-4 h-4 rounded-full border-2 border-border-strong border-t-accent animate-spin" />
+                      <span className="w-4 h-4 rounded-full border-2 border-elevate-5 border-t-accent animate-spin" />
                     )}
                   </div>
                 )}
@@ -157,6 +208,7 @@ export function PageSelector({
                   {page}
                 </div>
               </button>
+              </div>
             ))}
           </div>
 

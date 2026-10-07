@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { PILL_BASE } from "@/components/ui/pill";
+import { Pill } from "@/components/ui/pill";
 
 export interface SelectOption<T extends string> {
   value: T;
@@ -66,9 +66,9 @@ export function Select<T extends string>({
         onClick={() => setOpen((current) => !current)}
         className={cn(
           "flex w-full items-center justify-between gap-2 min-w-36 pl-4 pr-3 py-2 text-sm",
-          "rounded-full border border-border-soft text-fg outline-none transition-colors",
-          "hover:bg-elevate-2 focus:border-accent/50 cursor-pointer",
-          disabled && "opacity-40 cursor-not-allowed hover:bg-transparent",
+          "rounded-xl bg-elevate-2 text-fg outline-none transition-colors",
+          "hover:bg-elevate-3 focus-visible:ring-2 focus-visible:ring-accent/50 cursor-pointer",
+          disabled && "opacity-40 cursor-not-allowed hover:bg-elevate-2",
         )}
       >
         {/* Label and capsule share a baseline-aligned box; the chevron stays
@@ -114,10 +114,11 @@ export function Select<T extends string>({
                     : "text-subtle hover:bg-elevate-1 hover:text-fg",
                 )}
               >
-                {/* items-baseline, not items-center: the capsules carry more
-                    padding above their text than below (see PILL_BASE), so
-                    centring the boxes would leave their text sitting low. */}
-                <span className="flex items-baseline gap-2">
+                {/* items-center: a capsule is now optically centred on its own
+                    label (see ui/pill.ts), so centring the boxes lines the two
+                    runs of text up. Baseline alignment used to be the way round
+                    the capsule's asymmetric padding, and would now tip it. */}
+                <span className="flex items-center gap-2">
                   <span className={roomy ? "text-base" : "text-sm"}>{option.label}</span>
                   {option.tag && <Tag>{option.tag}</Tag>}
                 </span>
@@ -137,8 +138,6 @@ export function Select<T extends string>({
 
 function Tag({ children }: { children: React.ReactNode }) {
   return (
-    <span className={cn(PILL_BASE, "uppercase tracking-[0.06em] text-muted bg-elevate-3")}>
-      {children}
-    </span>
+    <Pill className="uppercase tracking-[0.06em] text-muted bg-elevate-3">{children}</Pill>
   );
 }

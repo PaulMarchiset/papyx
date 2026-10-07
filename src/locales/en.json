@@ -27,9 +27,10 @@
     "dropHint": "Drop PDFs or images anywhere"
   },
   "tools": {
+    "title": "Tools",
     "images-to-pdf": {
       "name": "Images → PDF",
-      "desc": "Turn JPG, PNG, HEIC or WebP files into one document."
+      "desc": "Turn JPG, PNG, HEIC, RAW or TIFF files into one document."
     },
     "merge": {
       "name": "Merge",
@@ -43,13 +44,17 @@
       "name": "Organize",
       "desc": "Reorder, rotate or delete pages."
     },
+    "rotate": {
+      "name": "Rotate",
+      "desc": "Turn the whole document or just some pages."
+    },
     "pdf-to-images": {
       "name": "PDF → Images",
       "desc": "Export every page as PNG, JPG or WebP."
     },
     "convert-images": {
-      "name": "Convert",
-      "desc": "HEIC, PNG, WebP… into JPG, PNG or WebP."
+      "name": "Image → Image",
+      "desc": "HEIC, RAW (DNG…), TIFF… into JPG, PNG or WebP."
     },
     "compress": {
       "name": "Compress",
@@ -74,6 +79,11 @@
     "needs": {
       "pdf": "This tool takes PDFs",
       "image": "This tool takes images"
+    },
+    "groups": {
+      "assemble": "Assemble and split",
+      "convert": "Convert and shrink",
+      "annotate": "Stamp and extract"
     }
   },
   "dropzone": {
@@ -195,7 +205,8 @@
     "wrongPassword": "Wrong password.",
     "encrypted": "Encrypted document: this tool cannot edit it.",
     "decode": "Could not read this image: {{name}}",
-    "generic": "Processing failed: {{message}}"
+    "generic": "Processing failed: {{message}}",
+    "nothingToRotate": "No page matches: nothing to rotate."
   },
   "settings": {
     "title": "Settings",
@@ -208,7 +219,7 @@
     "languageSystem": "System",
     "output": "Output",
     "about": "About",
-    "aboutLocal": "Papyx does all of its work locally, inside the app window. Your documents never leave your machine — the only request it ever makes is asking GitHub for the latest version number, and that can be turned off above.",
+    "aboutLocal": "Papyx does all of its work locally, inside the app window. Your documents never leave your machine — the only request it ever makes is asking GitHub for the latest version number, and that can be turned off under Updates.",
     "version": "Version {{version}}",
     "saveMode": "Saving",
     "saveAsk": "Ask every time",
@@ -220,7 +231,8 @@
     "updates": "Updates",
     "autoUpdate": "Check on startup",
     "autoUpdateHint": "Looks for a new version when the app opens. Only a version number is requested — nothing about you or your files is sent.",
-    "updateNow": "Check now"
+    "updateNow": "Check now",
+    "madeBy": "Designed and built by"
   },
   "update": {
     "available": "Papyx {{version}} is available",
@@ -233,7 +245,8 @@
     "checking": "Checking…",
     "current": "Papyx is up to date.",
     "failed": "Could not reach the update server.",
-    "chip": "Update"
+    "chip": "Update available",
+    "chipVersion": "Version {{version}}"
   },
   "compress": {
     "warning": "Pages are re-rendered as images: the file gets smaller, but the text stops being selectable and annotations are lost."
@@ -273,5 +286,35 @@
     "selected_one": "{{count}} page selected",
     "selected_other": "{{count}} pages selected",
     "shiftHint": "Shift-click for a range"
+  },
+  "rotate": {
+    "direction": "Rotation",
+    "right": "90° right",
+    "left": "90° left",
+    "half": "180°",
+    "scopeAll": "All",
+    "scopePages": "Pick",
+    "landscapeHint": "Pages shown in landscape, whatever rotation they already carry.",
+    "portraitHint": "Pages shown in portrait, whatever rotation they already carry.",
+    "pick": "Pages to rotate"
+  },
+  "documents": {
+    "title": "Documents",
+    "dropMore": "Drag more files here, or",
+    "browseMore": "browse"
+  },
+  "guide": {
+    "title": "Pick a tool",
+    "body": "Its settings open here, and the button that runs it stays at the foot of this panel.",
+    "step1": "Add your PDFs or images on the left",
+    "step2": "Pick a tool from the list",
+    "step3": "Run it, then save the result"
+  },
+  "preview": {
+    "open": "Enlarge",
+    "title": "Preview of {{name}}",
+    "previous": "Previous page",
+    "next": "Next page",
+    "page": "page {{page}} of {{total}}"
   }
 }

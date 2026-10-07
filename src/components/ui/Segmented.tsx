@@ -19,7 +19,7 @@ interface Props<T extends string> {
  */
 export function Segmented<T extends string>({ value, segments, onChange }: Props<T>) {
   return (
-    <div role="radiogroup" className="inline-flex gap-1 p-1 rounded-full bg-bg">
+    <div role="radiogroup" className="inline-flex flex-wrap gap-1 p-1 rounded-xl bg-elevate-2">
       {segments.map((segment) => (
         <button
           key={segment.value}
@@ -28,8 +28,10 @@ export function Segmented<T extends string>({ value, segments, onChange }: Props
           aria-checked={value === segment.value}
           onClick={() => onChange(segment.value)}
           className={cn(
-            "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-sm transition-colors",
-            value === segment.value ? "bg-elevate-4 text-fg" : "text-muted hover:text-fg",
+            "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors",
+            value === segment.value
+              ? "bg-surface text-fg shadow-card"
+              : "text-muted hover:text-fg",
           )}
         >
           {segment.icon}

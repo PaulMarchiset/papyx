@@ -23,7 +23,11 @@ pub fn run() {
     #[cfg(desktop)]
     let builder = builder
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .plugin(tauri_plugin_process::init());
+        .plugin(tauri_plugin_process::init())
+        // Remembers where the window was and how big it was. The config's
+        // `maximized` below is therefore only the *first* launch's answer;
+        // after that this plugin has the last word.
+        .plugin(tauri_plugin_window_state::Builder::default().build());
 
     builder
         .run(tauri::generate_context!())

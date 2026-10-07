@@ -4,6 +4,7 @@ export type ToolId =
   | "merge"
   | "split"
   | "organize"
+  | "rotate"
   | "pdf-to-images"
   | "convert-images"
   | "compress"

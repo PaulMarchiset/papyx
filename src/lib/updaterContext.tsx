@@ -7,7 +7,12 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { checkForUpdate, relaunchApp, type AvailableUpdate } from "@/lib/services/updater";
+import {
+  checkForUpdate,
+  fakeUpdateRequested,
+  relaunchApp,
+  type AvailableUpdate,
+} from "@/lib/services/updater";
 import { useSettings } from "@/lib/settingsContext";
 import { isTauri } from "@/lib/platform";
 
@@ -40,7 +45,7 @@ interface UpdaterContextValue {
   check: () => Promise<void>;
   install: () => Promise<void>;
   dismiss: () => void;
-  /** Brings a dismissed prompt back — what the header chip does. */
+  /** Brings a dismissed prompt back — what the sidebar's update button does. */
   reopen: () => void;
 }
 
@@ -112,10 +117,15 @@ export function UpdaterProvider({ children }: { children: ReactNode }) {
     setDismissed(false);
     // An install that failed left a stage nobody can act on. The update itself
     // is still waiting, so coming back to the dialog offers another go rather
-    // than re-showing the error.
+    // than re-showing the error. Only then, though: the sidebar button is
+    // clickable mid-install too, and must not knock a running install back to
+    // "available".
     if (update.current) {
-      setError(null);
-      setStage("available");
+      setStage((current) => {
+        if (current !== "error") return current;
+        setError(null);
+        return "available";
+      });
     }
   }, []);
 
@@ -124,9 +134,15 @@ export function UpdaterProvider({ children }: { children: ReactNode }) {
   // has no installer to run.
   const checked = useRef(false);
   useEffect(() => {
-    if (!isTauri || !settings.autoUpdate || checked.current) return;
-    checked.current = true;
-    const timer = setTimeout(() => void run(false), 1500);
+    if (!(isTauri || fakeUpdateRequested()) || !settings.autoUpdate || checked.current) return;
+    // Marked when the check actually fires, not when it is scheduled: under
+    // StrictMode the first run's timer is cleared straight away, and marking it
+    // up front left the second run nothing to do — no launch check at all in
+    // `tauri dev`.
+    const timer = setTimeout(() => {
+      checked.current = true;
+      void run(false);
+    }, 1500);
     return () => clearTimeout(timer);
   }, [settings.autoUpdate, run]);
 

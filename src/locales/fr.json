@@ -27,9 +27,10 @@
     "dropHint": "Déposez des PDF ou des images n'importe où"
   },
   "tools": {
+    "title": "Outils",
     "images-to-pdf": {
       "name": "Images → PDF",
-      "desc": "Assemblez JPG, PNG, HEIC ou WebP en un seul document."
+      "desc": "Assemblez JPG, PNG, HEIC, RAW ou TIFF en un seul document."
     },
     "merge": {
       "name": "Fusionner",
@@ -43,13 +44,17 @@
       "name": "Organiser",
       "desc": "Réordonnez, pivotez ou supprimez des pages."
     },
+    "rotate": {
+      "name": "Pivoter",
+      "desc": "Tournez tout le document ou quelques pages."
+    },
     "pdf-to-images": {
       "name": "PDF → Images",
       "desc": "Exportez chaque page en PNG, JPG ou WebP."
     },
     "convert-images": {
-      "name": "Convertir",
-      "desc": "HEIC, PNG, WebP… vers JPG, PNG ou WebP."
+      "name": "Image → Image",
+      "desc": "HEIC, RAW (DNG…), TIFF… vers JPG, PNG ou WebP."
     },
     "compress": {
       "name": "Compresser",
@@ -74,6 +79,11 @@
     "needs": {
       "pdf": "Cet outil attend des PDF",
       "image": "Cet outil attend des images"
+    },
+    "groups": {
+      "assemble": "Assembler et découper",
+      "convert": "Convertir et alléger",
+      "annotate": "Marquer et extraire"
     }
   },
   "dropzone": {
@@ -195,7 +205,8 @@
     "wrongPassword": "Mot de passe incorrect.",
     "encrypted": "Document chiffré : cet outil ne peut pas le modifier.",
     "decode": "Image illisible : {{name}}",
-    "generic": "Échec du traitement : {{message}}"
+    "generic": "Échec du traitement : {{message}}",
+    "nothingToRotate": "Aucune page ne correspond : rien à pivoter."
   },
   "settings": {
     "title": "Réglages",
@@ -208,7 +219,7 @@
     "languageSystem": "Système",
     "output": "Sortie",
     "about": "À propos",
-    "aboutLocal": "Papyx traite tout localement, dans la fenêtre de l'application. Vos documents ne quittent jamais votre machine — la seule requête effectuée est celle qui demande à GitHub le numéro de la dernière version, et elle peut être désactivée ci-dessus.",
+    "aboutLocal": "Papyx traite tout localement, dans la fenêtre de l'application. Vos documents ne quittent jamais votre machine — la seule requête effectuée est celle qui demande à GitHub le numéro de la dernière version, et elle se désactive dans « Mises à jour ».",
     "version": "Version {{version}}",
     "saveMode": "Enregistrement",
     "saveAsk": "Demander à chaque fois",
@@ -220,7 +231,8 @@
     "updates": "Mises à jour",
     "autoUpdate": "Vérifier au démarrage",
     "autoUpdateHint": "Cherche une nouvelle version à l'ouverture de l'application. Seul un numéro de version est demandé — rien sur vous ni sur vos fichiers n'est envoyé.",
-    "updateNow": "Vérifier maintenant"
+    "updateNow": "Vérifier maintenant",
+    "madeBy": "Conçu et développé par"
   },
   "update": {
     "available": "Papyx {{version}} est disponible",
@@ -233,7 +245,8 @@
     "checking": "Vérification…",
     "current": "Papyx est à jour.",
     "failed": "Impossible de joindre le serveur de mises à jour.",
-    "chip": "Mise à jour"
+    "chip": "Mise à jour disponible",
+    "chipVersion": "Version {{version}}"
   },
   "compress": {
     "warning": "Les pages sont re-rendues en images : le fichier s'allège, mais le texte cesse d'être sélectionnable et les annotations disparaissent."
@@ -273,5 +286,35 @@
     "selected_one": "{{count}} page sélectionnée",
     "selected_other": "{{count}} pages sélectionnées",
     "shiftHint": "Maj+clic pour une plage"
+  },
+  "rotate": {
+    "direction": "Rotation",
+    "right": "90° à droite",
+    "left": "90° à gauche",
+    "half": "180°",
+    "scopeAll": "Toutes",
+    "scopePages": "Choisir",
+    "landscapeHint": "Les pages affichées en paysage, quelle que soit leur rotation actuelle.",
+    "portraitHint": "Les pages affichées en portrait, quelle que soit leur rotation actuelle.",
+    "pick": "Pages à pivoter"
+  },
+  "documents": {
+    "title": "Documents",
+    "dropMore": "Glissez d'autres fichiers ici, ou",
+    "browseMore": "parcourir"
+  },
+  "guide": {
+    "title": "Choisissez un outil",
+    "body": "Les réglages s'ouvrent ici, et le bouton pour lancer reste en bas de ce panneau.",
+    "step1": "Ajoutez vos PDF ou vos images à gauche",
+    "step2": "Choisissez un outil dans la liste",
+    "step3": "Lancez, puis enregistrez le résultat"
+  },
+  "preview": {
+    "open": "Agrandir",
+    "title": "Aperçu de {{name}}",
+    "previous": "Page précédente",
+    "next": "Page suivante",
+    "page": "page {{page}} sur {{total}}"
   }
 }

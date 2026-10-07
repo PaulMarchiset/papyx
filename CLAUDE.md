@@ -23,10 +23,14 @@ All PDF processing is frontend code. Three engines, and the split matters:
   for structural edits. Non-destructive: text stays text.
 - **pdf.js** (`src/lib/pdf/{pdfjs,rasterize,text}.ts`) for anything needing a
   rendered page. Destructive by nature — `compressPdf` rasterizes.
-- **libheif-js** (`src/lib/pdf/heif.ts`) for HEIC only, behind a dynamic import.
-  Canvas encoding is shared by the two image paths in `canvas.ts`; `images.ts`
-  owns `decodeToCanvas`, which is what makes HEIC work everywhere at once
-  (convert, images→PDF, watermark, tray previews) rather than in one tool.
+- **Image decoders** for what Chromium cannot read, each behind a dynamic
+  import: **libheif-js** for HEIC (`heif.ts`), **libraw-wasm** for camera RAW
+  (`raw.ts`), **utif2** for TIFF (`tiff.ts`). Canvas encoding is shared by the
+  two image paths in `canvas.ts`; `images.ts` owns `decodeToCanvas`, which is
+  what makes a format work everywhere at once (convert, images→PDF, watermark,
+  tray previews) rather than in one tool. Formats are recognised by their bytes,
+  and most RAWs *are* TIFFs, so the RAW sniff runs first and a "RAW" LibRaw
+  refuses falls back to UTIF.
 
 Adding a tool means adding one operation under `src/lib/pdf/`, one definition
 under `src/components/tools/` implementing `ToolDefinition`, and one entry in
@@ -35,10 +39,52 @@ a tool only declares its options and its `run`.
 
 ## Shape of the app
 
-There is one screen. `Home` holds the file tray, the tool grid and — under it,
-in place — the open tool's `ToolPanel`; choosing a tool never navigates, it
-opens a panel, and the grid collapses to a row of chips so switching stays one
-click. Settings is the only other view.
+The title bar is one row: the lockup and the `100% local` badge on the left,
+the window's own buttons on the right, running the bar's full height (60 x 76,
+a little taller than wide): their glyphs sit on the logo's centre line, and
+Close still owns the top-right corner pixel — where Windows users throw the
+pointer to close. Both constraints hold; do not trade one for the other (the window opens maximised, and
+`tauri-plugin-window-state` remembers it afterwards). Settings and a waiting
+update live at the foot of the tool sidebar, bottom-left, which is what keeps
+that bar free for the window controls.
+
+Any thumbnail can be enlarged: the file list's preview opens on click, a page
+tile through its corner `ZoomButton` or a double-click (its own click selects
+it). `Preview.tsx` holds the one viewer, opened through `usePreview()`; it
+keeps the pdf.js document open while it is up so paging is a render, and
+shows a page with the rotation the tool is about to apply.
+
+The window is a fixed frame and nothing scrolls it. Under the header: the tool
+sidebar (`ToolSidebar`, every tool in the website's three families, from
+`TOOL_GROUPS` in `registry.ts`), then `Workspace` — two cards of the
+window's full height, **Documents** (`DocumentsPanel`) and **the tool**
+(`ToolPanel`). Settings is not a view but a dialog over the workspace
+(`SettingsDialog`: sections listed on the left, one shown at a time; the
+browser fallback lists only those it has content for). Opening it is therefore
+not guarded — the result stays where it is — but installing an update from
+inside it is.
+
+The one rule the whole layout hangs on: **neither card ever appears, disappears
+or changes size — only what is inside them does.** The earlier layouts broke
+that everywhere: the drop zone was swapped for a tray when the first file
+landed, the tool grid folded from cards into chips when a tool opened, the run
+button floated under a panel of variable height and the result fell below the
+fold. Concretely:
+
+- The Documents card is the same element empty and full. Its drop area fills it
+  when empty and eases down to a strip at its foot once files are in (both are
+  `flex-grow` transitions); dragging files over the window grows it back part
+  of the way.
+- The tool card has three floors that never trade places: heading, options
+  (which scroll on their own), and the floor — the result, grown in with
+  `Collapse` once there is one, above `ActionBar`. Without a tool it shows a
+  three-step guide in the same card.
+- `ActionBar` is one full-width primary button that carries the whole run:
+  Run, then progress filling the button, then Save (or Open folder once on
+  disk), with Cancel / Run again beside it. There is a test that the Save
+  button lands exactly where Run was.
+- `Row` wraps its control under its label when the tool card is narrow (it
+  can be ~380px at the 960px minimum window).
 
 The state all of that reads lives in `App.tsx`: the tray (`useSourceFiles`),
 the open tool, the running job (`useJob`) and per-tool options
@@ -72,7 +118,17 @@ and the README says exactly that. Do not restore the older, absolute wording.
 behind `isTauri` and a dynamic import, so the browser fallback and the Playwright
 suite never load the plugin. `updaterContext.tsx` holds the state machine and
 fires the one automatic check; `UpdatePrompt` is the launch dialog, `UpdateChip`
-is what "Later" leaves in the header, `UpdateSection` is the Settings half.
+is the row at the foot of the sidebar (above Settings) that stays for as long as
+a version is waiting — not only after "Later" — and shows install progress,
+`UpdateSection` is the Settings half.
+
+To see all of it without publishing a release: `npm run dev` and open
+`/?fake-update`. `fakeUpdateRequested()` in `services/updater.ts` serves a
+pretend 1.1.0 with a simulated download, and "restart" reloads without the flag.
+It is gated on `import.meta.env.DEV`, so a build cannot be talked into it. The
+launch check is marked done when its timer *fires*, not when it is scheduled —
+under StrictMode the first timer is cleared at once, and marking it early meant
+`tauri dev` never checked at all.
 
 Three decisions worth not re-litigating:
 
@@ -91,71 +147,70 @@ Three decisions worth not re-litigating:
 
 ## Shape
 
-Everything is cut from one squircle. The last rule in `styles.css` hands
-`corner-shape: squircle` to every element carrying a radius —
-`[class*="rounded-"]:not([class*="rounded-full"])` — so a corner is a
-superellipse wherever the engine can draw one and an ordinary rounded rectangle
-where it cannot; `corner-shape` is ignored by engines without it, which is why
-this needs no `@supports`. The exception is deliberate: `rounded-full` means a
-pill or a circle, and a superellipse on a 9999px radius is a lozenge.
+Everything is cut from one squircle, and it follows the website
+(papyx.paulmarchiset.me, source in `../papyx_web`): borderless surfaces lifted
+by shadows, squircle buttons rather than pills, and no squint-sized uppercase
+labels. The last rule in `styles.css` hands `corner-shape: squircle` to every
+element carrying a radius — `[class*="rounded-"]:not([class*="rounded-full"])`
+— so a corner is a superellipse wherever the engine can draw one and an
+ordinary rounded rectangle where it cannot. What is left on `rounded-full` is
+genuinely round (the toggle and its knob, spinners); a superellipse on a 9999px
+radius is a lozenge.
 
-Two consequences worth knowing:
+Consequences worth knowing:
 
 - **The radius scale is roughly double Tailwind's.** A superellipse corner
-  reads tighter than a circular one of the same radius — the curvature starts
-  later, so the straight edge runs further into the corner. `--radius-*` in
+  reads tighter than a circular one of the same radius. `--radius-*` in
   `@theme` carries the corrected values; every `rounded-*` utility follows.
+- **No borders on anything you press or anything that floats.** Controls are
+  filled (`bg-elevate-*`), focus is an accent ring, selection is a ring on a
+  picked page. The drop area's dashed outline is the one deliberate exception.
 - **The elevation tokens sit outside `@theme` on purpose.** Tailwind would mint
   a `shadow-card` utility with the value inlined, and `--shadow-card` has to
-  follow the light/dark flip, which only a `var()` can. `.shadow-card` and
-  `.shadow-pop` are therefore hand-written classes at the foot of the file.
+  follow the light/dark flip, which only a `var()` can.
 
-`components/ui/styles.ts` holds what those add up to: `CARD` (a floating
-surface), `INSET` (a block inside one), `TILE` (the accent square behind an
-icon) and the button family, which is pills all the way down — `BTN_PRIMARY` is
-the one action, `BTN_SECONDARY` everything else with a label, `BTN_QUIET` the
-small outlined one, `BTN_ICON` an icon on its own. Reach for those before
-writing geometry into a component; a radius that drifts by two pixels is
-invisible in a diff and obvious on screen. `Section` also carries `data-card`,
-which is the handle the layout test grabs — a radius class is not a name.
+`components/ui/styles.ts` holds what those add up to: `CARD`, `INSET`, `TILE`
+and the button family — `BTN_PRIMARY` the one action, `BTN_SECONDARY`
+everything else with a label, `BTN_QUIET` the small one, `BTN_ICON` an icon on
+its own. Reach for those before writing geometry into a component.
 
-The header's own alignment rule: the mark stands on the wordmark's baseline (see
-Icons), and the `100% local` capsule is simply centred against the lockup. It is
-a filled box, not a run of text, and boxes centre — an earlier version put its
-label on the wordmark baseline with a hand-tuned nudge, which is a pixel to
-re-tune every time either type size moves.
+Handles the tests grab, because a class is not a name: the Documents card is
+the region named "Documents"; the tool card is `section[data-card]`; its
+options are `[data-options]`; the drop area is `[data-drop-area]`; anything
+meant to be moving when a tool opens carries `data-motion`.
 
 ## Motion
 
-Nothing animates its way into existence. A panel, a card, a menu or a dialog is
-simply there when it opens, and changing tool or view plays nothing — the app
-had a rise-and-fade entrance on all of them and it read as the interface
-re-arriving on every click. What is left moves for a reason: the layout, a 2%
-press dip on every button, and the indeterminate progress sweep.
+**If something moves, it travels; nothing fades into place.** Opening a tool or
+switching view plays nothing — the contents of a card are simply there. But any
+displacement is animated, so the interface never jumps:
 
-Conditional options are the layout case, and they go through `ui/Collapse`
-instead of `{condition && <Row/>}` — the quality row, the page grid, the output
-folder. Inserting a row moved everything under it in one frame; the component
-gives the row itself the height (`grid-template-rows: 0fr -> 1fr`, the one way
-to interpolate a content-sized box) so its neighbours travel. Two details are
-load-bearing: a closed Collapse renders `null` rather than a zero-height box,
-because `space-y` margins go by position in the DOM and an empty box still
-hands its neighbour a gap; and the content is clipped only while moving, or a
-`Select` menu inside one would be cut off.
+- `useFlip` (FLIP on Web Animations, transform/opacity only) on the file list
+  and the Organize page grid: rows and pages glide when added, removed or
+  reordered, and a dropped file slides into the list. `enterOnMount: false`
+  keeps a grid that is simply *there* when its panel opens from fading in.
+- The drop area and the file list trade space with `flex-grow` transitions,
+  and the drop area's two faces cross-fade staggered so they are never legible
+  on top of each other.
+- The sidebar selection is one lifted surface that slides between tools
+  (`data-motion`; the "opens a tool" test exempts it and nothing else).
+- Conditional rows, the result and the picker hint grow through `ui/Collapse`
+  instead of `{condition && <Row/>}` (`grid-template-rows: 0fr -> 1fr`). A
+  closed Collapse renders `null`, because `space-y` margins go by DOM position
+  and an empty box still hands its neighbour a gap; the content is clipped
+  only while moving, or a `Select` menu inside one would be cut off.
 
-Everything that does move shares `--ease-soft`, a cubic ease-out that keeps
-travelling for most of its duration — the sharper expo/quint curves put nine
-tenths of the distance in the first fifth of the time and read as a snap. It is
-also set as Tailwind v4's `--default-transition-duration` /
-`--default-transition-timing-function`, so hovers and colour changes soften with
-it instead of running on their own 150ms default.
+Everything shares `--ease-soft`, a cubic ease-out that keeps travelling for
+most of its duration (expo/quint read as a snap). It is also Tailwind v4's
+`--default-transition-duration` / `--default-transition-timing-function`, and
+`EASE_SOFT` in `useFlip.ts` for the scripted animations.
 
-Two cascade traps are already paid for and easy to reintroduce: the press rule
-lives **outside** `@layer base` as `button:not(:disabled)`, because a utility
-like `transition-colors` sets `transition-property` on the element and would
-drop the transform; and the `prefers-reduced-motion` block is unlayered and
-last, because layered rules lose to the unlayered utilities they are trying to
-override. All of the above is covered by e2e tests — including that a click
+Two cascade traps are already paid for: the press rule lives **outside**
+`@layer base` as `button:not(:disabled)`, because `transition-colors` would
+otherwise drop the transform; and the `prefers-reduced-motion` block is
+unlayered and last. `useFlip` checks reduced motion itself. All of this is
+covered by e2e tests — that the cards do not move when files arrive, that the
+drop area is caught mid-travel, that the selection slides, and that a click
 leaves nothing mid-entrance.
 
 ## Things that will bite
@@ -175,6 +230,16 @@ leaves nothing mid-entrance.
   Note also that AVIF lives in the same ISO-BMFF container and declares `mif1`
   among its brands: `isHeif` excludes it on purpose, because the browser
   decodes AVIF natively and better. There is a test for that.
+- **LibRaw transfers the buffer it is given, too.** `decodeRaw` passes a copy
+  for the same reason as `openDocument`. The package is built with pthreads but
+  runs single-threaded without `SharedArrayBuffer` — do not "fix" that by
+  adding COOP/COEP headers; it works as is in the WebView and under the
+  production CSP. It must stay in `optimizeDeps.exclude` (it finds its worker
+  and wasm through `import.meta.url`), while `utif2` is CommonJS and must stay
+  in `optimizeDeps.include`.
+- **Rotate edits /Rotate in place; Organize copies pages.** The copy is what
+  lets Organize reorder and duplicate, and it drops bookmarks and forms on the
+  way. A rotate that went through `organizePdf` would lose them for nothing.
 - **Helvetica is WinAnsi-encoded.** `toWinAnsi` folds typographic strays before
   pdf-lib throws on them; do not remove it when touching the stamping tools.
 - **`dragDropEnabled: false` is deliberate.** On Windows, letting Tauri handle
@@ -202,8 +267,30 @@ leaves nothing mid-entrance.
   That is the intended failure — an unsigned bundle would be refused by every
   installed copy anyway. The public half lives in `tauri.conf.json`; losing the
   private half means no installed copy can ever be updated again.
+- **Release notes are `RELEASE_NOTES.md`, and users read them.** The workflow
+  makes that file the release body, which tauri-action also writes into
+  `latest.json` as `notes` — the text every installed copy shows in its update
+  dialog. Plain text, written for users, updated before each tag.
 - **The release must not be a draft or a prerelease.** The manifest is read from
   `/releases/latest/download/latest.json`, and "latest" skips both.
+- **The interface font's metrics are overridden, and everything vertical
+  depends on it.** Flexbox centres a line box (ascent + descent); the eye
+  centres text between cap height and baseline. Those agree only when
+  `ascent - descent = cap`. Sirba satisfies it; PP Mori shipped 0.77/0.23
+  against a cap of 0.70, which sat every label ~0.08em high in its button and
+  left every icon beside one out of line with it — 1px on a chip, 3px on a
+  preset. `styles.css` raises the ascent to 93% on all six faces. Do not
+  "fix" a label that looks off by padding it or nudging it: that was the old
+  answer, it moved icon and label together, and it could never bring the two
+  into line. There is an e2e test on the identity.
+- **`WindowControls` must never throw.** Every call goes through `onWindow`,
+  because `getCurrentWindow()` throws when the runtime is stubbed or the
+  handle has gone — and unguarded, in a mount effect, that took the entire
+  header down with it rather than just the buttons. The glyphs are drawn with
+  `shape-rendering="crispEdges"`: they are 1px strokes, Windows commonly runs
+  at 125%, and a half-pixel stroke smears into what looks like a doubled edge.
+  The middle button follows the window — maximise or restore — since the app
+  now starts maximised.
 - **CSP is set in `tauri.conf.json`**, with a looser `devCsp` because the React
   refresh preamble is injected inline in dev. If a build renders blank while dev
   works, suspect the production CSP first.
@@ -225,11 +312,8 @@ Three files carry the same P and have to be changed together: `app-icon.svg`,
 transform over the supplied 550-box coordinates rather than retraced, so the
 path is byte-identical in all three and diffable against the source artwork.
 
-The in-app lockup is that P plus the name as live text in the app's serif — not
-the outlined wordmark it used to be. The mark is `text-accent`, the name
-`text-fg`. Its viewBox is cropped to the ink, which is what makes the alignment
-free: an inline replaced element sits on the text baseline by its bottom edge,
-and the bottom of that crop is the flat foot of the P, so `items-baseline` puts
-the two on one line at any size. There is a test on exactly that, and it is
-measured with a baseline strut rather than a canvas ascent — a font metric
-rounds, and answers differently before the bundled face has loaded.
+The in-app lockup is the website's: the P on its white tile (white in both
+themes — it is the app icon) beside "Papyx" in the interface's sans. The glyph
+sits in its uncropped 550 box, where it is centred, so the tile needs no padding.
+Tile and name are centred on each other, which lands true only because of the
+PP Mori metric override; there is a test on that.

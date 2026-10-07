@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { openDocument, renderThumbnail } from "@/lib/pdf/pdfjs";
-import { imageThumbnail } from "@/lib/pdf/images";
-import { isHeif } from "@/lib/pdf/heif";
+import { imageThumbnail, needsDecoder } from "@/lib/pdf/images";
 import type { SourceFile } from "@/lib/types";
 
 /**
@@ -19,8 +18,9 @@ import type { SourceFile } from "@/lib/types";
  * twice, which cancelled the first pass and made the second skip everything.
  *
  * Images are shown from a blob URL instead — decoding them through pdf.js would
- * be silly, and the browser already knows how. Except for HEIC, which it does
- * not: those are decoded and re-encoded down to thumbnail size (see heif.ts).
+ * be silly, and the browser already knows how. Except for HEIC, camera RAW and
+ * TIFF, which it does not: those are decoded and re-encoded down to thumbnail
+ * size (see images.ts).
  */
 export function useFileThumbnails(files: SourceFile[]): Record<string, string> {
   const [urls, setUrls] = useState<Record<string, string>>({});
@@ -38,7 +38,7 @@ export function useFileThumbnails(files: SourceFile[]): Record<string, string> {
         seen.current.add(file.id);
 
         if (file.kind === "image") {
-          if (isHeif(file.bytes)) {
+          if (needsDecoder(file.bytes)) {
             try {
               const url = await imageThumbnail(file.bytes, 96);
               setUrls((current) => ({ ...current, [file.id]: url }));

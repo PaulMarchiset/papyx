@@ -1,31 +1,62 @@
-import { Download } from "lucide-react";
+import { Download, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/cn";
-import { PILL_ICON } from "@/components/ui/pill";
 import { useUpdater } from "@/lib/updaterContext";
 
 /**
- * What "Later" leaves behind. Waving the dialog away should not mean the update
- * is gone until the next launch, so it folds down into the header — visible,
- * one click from the dialog, and out of the way of the work.
+ * The update, as a row at the foot of the sidebar, just above Settings.
+ *
+ * It is there for as long as a newer version is waiting — from the moment the
+ * check finds one, not only after the launch dialog has been waved away — so
+ * an update is never something you have to remember was offered. Clicking it
+ * brings the dialog back. While the installer downloads it shows how far it
+ * has got, since the dialog is the only other place that does.
  */
 export function UpdateChip({ onOpen }: { onOpen: (open: () => void) => void }) {
   const { t } = useTranslation();
-  const { stage, version, dismissed, reopen } = useUpdater();
+  const { stage, version, progress, reopen } = useUpdater();
 
   // Also after a failed install: the update is still waiting, and this is the
   // only way back to the dialog once it has been closed.
-  const waiting = stage === "available" || (stage === "error" && version != null);
-  if (!waiting || !dismissed) return null;
+  const installing = stage === "installing";
+  const waiting = stage === "available" || installing || (stage === "error" && version != null);
+  if (!waiting || !version) return null;
+
+  const percent = progress == null ? null : Math.round(progress * 100);
 
   return (
     <button
       type="button"
       onClick={() => onOpen(reopen)}
-      className={cn(PILL_ICON, "bg-accent/15 text-accent hover:bg-accent/25 transition-colors")}
+      className={cn(
+        "relative w-full overflow-hidden flex items-center gap-3 rounded-xl px-3 py-2.5 text-left",
+        "bg-badge-bg text-badge-fg hover:brightness-[0.97] transition-[filter]",
+      )}
     >
-      <Download className="w-3.5 h-3.5" />
-      {t("update.chip")}
+      {installing && percent != null && (
+        <span
+          aria-hidden="true"
+          className="absolute inset-y-0 left-0 bg-accent/15 transition-[width] duration-150"
+          style={{ width: `${percent}%` }}
+        />
+      )}
+      <span className="relative flex-shrink-0">
+        {installing ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <Download className="w-4 h-4" />
+        )}
+      </span>
+      <span className="relative min-w-0">
+        <span className="block text-sm font-medium truncate">
+          {installing ? t("update.installing") : t("update.chip")}
+        </span>
+        <span className="block text-xs opacity-75 tabular-nums truncate">
+          {installing && percent != null
+            ? `${percent}%`
+            : t("update.chipVersion", { version })}
+        </span>
+      </span>
     </button>
   );
 }

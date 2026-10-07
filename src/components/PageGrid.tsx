@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/cn";
+import { useFlip } from "@/lib/useFlip";
+import { ZoomButton } from "@/components/Preview";
 
 export interface PageItem {
   page: number;
@@ -16,6 +18,8 @@ interface Props {
   onToggle: (page: number) => void;
   /** Drag-and-drop reordering: move the card at `from` to `to`. */
   onReorder: (from: number, to: number) => void;
+  /** Opens the large preview of a source page. */
+  onPreview?: (page: number) => void;
 }
 
 /**
@@ -25,11 +29,24 @@ interface Props {
  * dragged to reorder; the number on a card is its page in the *source*
  * document, which is what makes a rearrangement readable.
  */
-export function PageGrid({ items, urls, loading, selected, onToggle, onReorder }: Props) {
+export function PageGrid({
+  items,
+  urls,
+  loading,
+  selected,
+  onToggle,
+  onReorder,
+  onPreview,
+}: Props) {
   const { t } = useTranslation();
   const [dragFrom, setDragFrom] = useState<number | null>(null);
   // Index the card would land at, i.e. "insert before this card".
   const [dropAt, setDropAt] = useState<number | null>(null);
+  // Moving a page — dragged, or shifted with the arrows — glides the cards
+  // between their slots instead of reshuffling the grid in one frame.
+  const grid = useFlip<HTMLDivElement>(items.map((item) => item.page).join(","), {
+    enterOnMount: false,
+  });
 
   const finishDrag = () => {
     if (dragFrom != null && dropAt != null) {
@@ -42,10 +59,11 @@ export function PageGrid({ items, urls, loading, selected, onToggle, onReorder }
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-3">
+      <div ref={grid} className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-3">
         {items.map((item, index) => (
           <div
             key={item.page}
+            data-flip={item.page}
             draggable
             onDragStart={() => setDragFrom(index)}
             onDragEnd={finishDrag}
@@ -61,20 +79,24 @@ export function PageGrid({ items, urls, loading, selected, onToggle, onReorder }
               event.preventDefault();
               finishDrag();
             }}
-            className={cn("relative", dragFrom === index && "opacity-40")}
+            className={cn("group/tile relative", dragFrom === index && "opacity-40")}
           >
+            {onPreview && urls[item.page - 1] && (
+              <ZoomButton label={t("preview.open")} onClick={() => onPreview(item.page)} />
+            )}
             {dropAt === index && <Insertion />}
             {dropAt === items.length && index === items.length - 1 && <Insertion after />}
 
             <button
               type="button"
               onClick={() => onToggle(item.page)}
+              onDoubleClick={() => onPreview?.(item.page)}
               aria-pressed={selected.has(item.page)}
               className={cn(
-                "w-full rounded-2xl border p-2 text-left transition-colors cursor-grab active:cursor-grabbing",
+                "w-full rounded-2xl p-2 text-left transition-colors cursor-grab active:cursor-grabbing",
                 selected.has(item.page)
-                  ? "border-accent bg-accent/5"
-                  : "border-border hover:border-border-hover",
+                  ? "bg-badge-bg ring-2 ring-accent"
+                  : "bg-elevate-1 hover:bg-elevate-3",
                 item.deleted && "opacity-40",
               )}
             >
@@ -84,11 +106,11 @@ export function PageGrid({ items, urls, loading, selected, onToggle, onReorder }
                     src={urls[item.page - 1]}
                     alt=""
                     draggable={false}
-                    className="max-w-full max-h-full object-contain"
+                    className="max-w-full max-h-full object-contain transition-transform"
                     style={{ transform: transformFor(item.rotation) }}
                   />
                 ) : (
-                  <span className="w-6 h-6 rounded-full border-2 border-border-strong border-t-accent animate-spin" />
+                  <span className="w-6 h-6 rounded-full border-2 border-elevate-5 border-t-accent animate-spin" />
                 )}
               </div>
               <div className="mt-2 flex items-center justify-between text-xs text-muted">

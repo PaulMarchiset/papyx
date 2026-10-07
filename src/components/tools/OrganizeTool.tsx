@@ -10,11 +10,13 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PageGrid, type PageItem } from "@/components/PageGrid";
+import { usePreview } from "@/components/Preview";
 import { useThumbnails } from "@/lib/useThumbnails";
 import { reorder } from "@/lib/reorder";
 import { organizePdf } from "@/lib/pdf/organize";
 import { ensureExtension, stem } from "@/lib/format";
 import { ToolError } from "@/lib/toolError";
+import { BTN_ICON, BTN_QUIET } from "@/components/ui/styles";
 import type { OptionsProps, ToolDefinition } from "@/components/tools/types";
 
 interface Options {
@@ -28,6 +30,7 @@ function OrganizePanel({ value, onChange, files }: OptionsProps<Options>) {
   const file = files[0];
   const { urls, loading } = useThumbnails(file);
   const [selected, setSelected] = useState<Set<number>>(new Set());
+  const preview = usePreview();
 
   useEffect(() => {
     if (!file || value.loadedFor === file.id) return;
@@ -95,7 +98,7 @@ function OrganizePanel({ value, onChange, files }: OptionsProps<Options>) {
         <Chip label={t("organize.selectAll")} onClick={() => setSelected(new Set(items.map((i) => i.page)))} />
         <Chip label={t("organize.selectNone")} onClick={() => setSelected(new Set())} />
 
-        <span className="w-px h-6 bg-border mx-1" />
+        <span className="w-px h-5 bg-elevate-4 mx-1" />
 
         <Icon label={t("organize.rotateLeft")} disabled={none} onClick={() => rotate(-90)}>
           <RotateCcw className="w-4 h-4" />
@@ -123,6 +126,14 @@ function OrganizePanel({ value, onChange, files }: OptionsProps<Options>) {
         loading={loading}
         selected={selected}
         onReorder={(from, to) => patch((next) => reorder(next, from, to))}
+        onPreview={(page) =>
+          preview({
+            file,
+            page,
+            // As it will come out, like the tile it was opened from.
+            rotationFor: (n) => items.find((item) => item.page === n)?.rotation ?? 0,
+          })
+        }
         onToggle={(page) =>
           setSelected((current) => {
             const next = new Set(current);
@@ -141,7 +152,7 @@ function Chip({ label, onClick }: { label: string; onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="px-3.5 py-1.5 rounded-full border border-border-strong text-sm text-fg hover:bg-elevate-2 hover:border-border-hover transition-colors"
+      className={BTN_QUIET}
     >
       {label}
     </button>
@@ -166,7 +177,7 @@ function Icon({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="p-2 rounded-full border border-border-strong text-fg hover:bg-elevate-2 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+      className={`${BTN_ICON} bg-elevate-2 text-fg`}
     >
       {children}
     </button>

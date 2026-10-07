@@ -18,12 +18,13 @@ Cousin de [FFkit](https://github.com/PaulMarchiset/ffkit) : même pile technique
 
 | Outil | Ce qu'il fait |
 |---|---|
-| **Images → PDF** | Assemble JPG / PNG / HEIC / WebP / AVIF en un document, format et marges au choix |
+| **Images → PDF** | Assemble JPG / PNG / HEIC / RAW / TIFF / WebP / AVIF en un document, format et marges au choix |
 | **Fusionner** | Met bout à bout plusieurs PDF, dans l'ordre que vous fixez |
 | **Diviser** | Par intervalles (`1-3, 8-10`), toutes les N pages, une page par fichier, ou extraction d'une sélection |
 | **Organiser** | Vignettes de toutes les pages : réordonner, pivoter, supprimer |
+| **Pivoter** | 90° à droite, à gauche ou 180°, sur tout le document, les seules pages paysage (ou portrait), ou celles qu'on clique — par lot |
 | **PDF → Images** | Chaque page en PNG / JPG / WebP, de 72 à 600 DPI |
-| **Convertir** | HEIC (photos iPhone), PNG, WebP, AVIF… vers JPG / PNG / WebP |
+| **Image → Image** | HEIC (photos iPhone), RAW d'appareil photo (DNG, CR2/CR3, NEF, ARW, RAF…), TIFF, PNG, WebP, AVIF… vers JPG / PNG / WebP |
 | **Compresser** | Rééchantillonne les pages en JPEG (trois niveaux, niveaux de gris en option) |
 | **Filigrane** | Texte en travers des pages, centré ou en mosaïque, angle et opacité réglables |
 | **Numéroter** | Numéros de page, position, format (`{n} / {total}`), page de départ |
@@ -114,6 +115,10 @@ La commande demande un mot de passe et produit deux fichiers. Ensuite :
 
 ### Publier une version
 
+Écrire d'abord les nouveautés dans `RELEASE_NOTES.md` : ce texte devient la
+description de la release *et* les notes affichées dans la fenêtre de mise à
+jour de chaque copie installée. Texte brut, pas de Markdown.
+
 ```bash
 npm run set-version 1.1.0    # les quatre fichiers qui portent le numéro
 git commit -am "Papyx 1.1.0"
@@ -151,10 +156,15 @@ Tout le traitement PDF vit dans le front, dans la webview :
   rendu — vignettes, export en images, compression, extraction de texte. Ses
   tables CMap et polices standard sont recopiées dans `public/pdfjs/` au moment
   du `npm install` : elles sont servies depuis le disque, jamais depuis un CDN.
-- **[libheif](https://github.com/strukturag/libheif)** (compilé en WebAssembly)
-  pour le HEIC. C'est le seul format d'image que la webview ne sait pas lire :
-  il contient du HEVC, et Chromium n'embarque pas de décodeur HEVC. Le module
-  n'est chargé qu'au premier fichier HEIC rencontré.
+- Trois décodeurs d'images pour ce que la webview ne sait pas lire, chacun
+  chargé seulement au premier fichier qui en a besoin :
+  - **[libheif](https://github.com/strukturag/libheif)** (WebAssembly) pour le
+    HEIC — il contient du HEVC, et Chromium n'embarque pas de décodeur HEVC ;
+  - **[LibRaw](https://www.libraw.org/)** (WebAssembly, dans un worker) pour les
+    RAW d'appareil photo : dématriçage, balance des blancs de prise de vue,
+    conversion sRGB, orientation ;
+  - **[UTIF](https://github.com/photopea/UTIF.js)** pour le TIFF, que Chromium
+    n'a jamais su décoder.
 
 Le Rust (`src-tauri/`) ne fait que le strict minimum qu'une page web ne sait pas
 faire : boîtes de dialogue natives, lecture/écriture des fichiers choisis,

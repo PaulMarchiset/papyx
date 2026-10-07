@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { PDFDocument, degrees } from "pdf-lib";
+import { PDFDocument, PDFName, degrees } from "pdf-lib";
 import { makePdf, makePng } from "@/test/fixtures";
 import { mergePdfs } from "@/lib/pdf/merge";
 import { splitPdf } from "@/lib/pdf/split";
 import { organizePdf } from "@/lib/pdf/organize";
+import { rotatePdf } from "@/lib/pdf/rotate";
 import { imagesToPdf } from "@/lib/pdf/imagesToPdf";
 import { addPageNumbers, toWinAnsi, watermarkPdf } from "@/lib/pdf/stamp";
 import { readMetadata, writeMetadata } from "@/lib/pdf/metadata";
@@ -59,6 +60,69 @@ describe("organizePdf", () => {
     expect(doc.getPageCount()).toBe(2);
     expect(doc.getPage(0).getRotation().angle).toBe(90);
     expect(doc.getPage(1).getRotation().angle).toBe(0);
+  });
+});
+
+describe("rotatePdf", () => {
+  /** Portrait, landscape, then a landscape sheet already turned upright. */
+  async function mixed(): Promise<Uint8Array> {
+    const doc = await PDFDocument.create();
+    doc.addPage([300, 400]);
+    doc.addPage([400, 300]);
+    doc.addPage([400, 300]).setRotation(degrees(90));
+    return doc.save();
+  }
+
+  async function angles(bytes: Uint8Array): Promise<number[]> {
+    const doc = await PDFDocument.load(bytes);
+    return doc.getPages().map((page) => page.getRotation().angle);
+  }
+
+  it("turns every page, adding to the rotation each already carries", async () => {
+    const { bytes, rotated } = await rotatePdf(
+      { bytes: await mixed() },
+      { turn: 90, scope: "all", pages: [] },
+    );
+    expect(rotated).toBe(3);
+    expect(await angles(bytes)).toEqual([90, 90, 180]);
+  });
+
+  it("turns only the pages that look landscape", async () => {
+    // Page 3 is a landscape sheet shown upright: it reads as portrait and
+    // stays put, which is the whole point of going by what is displayed.
+    const { bytes, rotated } = await rotatePdf(
+      { bytes: await mixed() },
+      { turn: 270, scope: "landscape", pages: [] },
+    );
+    expect(rotated).toBe(1);
+    expect(await angles(bytes)).toEqual([0, 270, 90]);
+  });
+
+  it("turns the pages it is given, and wraps past a full turn", async () => {
+    const { bytes } = await rotatePdf(
+      { bytes: await mixed() },
+      { turn: 270, scope: "pages", pages: [3] },
+    );
+    expect(await angles(bytes)).toEqual([0, 0, 0]);
+  });
+
+  it("reports when nothing matched instead of rewriting the file", async () => {
+    const source = await makePdf(2);
+    const result = await rotatePdf({ bytes: source }, { turn: 90, scope: "landscape", pages: [] });
+    expect(result.rotated).toBe(0);
+    expect(result.bytes).toBe(source);
+  });
+
+  it("keeps the document's outline, which a page copy would lose", async () => {
+    const doc = await PDFDocument.load(await makePdf(2));
+    const outline = doc.context.obj({ Type: "Outlines", Count: 0 });
+    doc.catalog.set(PDFName.of("Outlines"), doc.context.register(outline));
+    const { bytes } = await rotatePdf(
+      { bytes: await doc.save() },
+      { turn: 180, scope: "all", pages: [] },
+    );
+    const reloaded = await PDFDocument.load(bytes);
+    expect(reloaded.catalog.get(PDFName.of("Outlines"))).toBeDefined();
   });
 });
 

@@ -1,7 +1,7 @@
 {
   "name": "papyx",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "Paul Marchiset",
   "license": "GPL-3.0",
   "type": "module",
@@ -26,13 +26,15 @@
     "clsx": "^2.1.1",
     "i18next": "^26",
     "libheif-js": "^1.19.8",
+    "libraw-wasm": "^1.6.0",
     "lucide-react": "^1",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^6.3.289",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-i18next": "^17",
-    "tailwind-merge": "^3"
+    "tailwind-merge": "^3",
+    "utif2": "^4.1.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

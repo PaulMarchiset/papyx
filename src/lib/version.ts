@@ -7,4 +7,4 @@
  * which matters because tauri.conf.json's copy is what the updater compares
  * against the release manifest.
  */
-export const APP_VERSION = "1.0.0";
+export const APP_VERSION = "1.1.0";

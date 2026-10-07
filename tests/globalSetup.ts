@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { makeDng, makeTiffImage } from "../src/test/fixtures";
 
 /** Writes the sample documents the specs upload. */
 export default async function globalSetup() {
@@ -23,4 +24,8 @@ export default async function globalSetup() {
     }
     await writeFile(`tests/fixtures/${name}`, await doc.save());
   }
+
+  // The two image families Chromium cannot decode by itself.
+  await writeFile("tests/fixtures/photo.dng", makeDng());
+  await writeFile("tests/fixtures/scan.tif", makeTiffImage(40, 20, [20, 160, 60]));
 }

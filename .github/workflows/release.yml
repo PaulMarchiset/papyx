@@ -44,6 +44,19 @@ jobs:
       # it the built app renders CJK documents and standard-font PDFs blank.
       - run: npm ci
 
+      # The release body is also the "notes" field of latest.json, which every
+      # installed copy shows in its update dialog — so it is read from
+      # RELEASE_NOTES.md (plain text, written for users) rather than fixed here.
+      # Update that file before tagging.
+      - id: notes
+        shell: pwsh
+        run: |
+          # Explicit UTF-8 (BOM-less under pwsh 7): the notes carry accents.
+          $body = (Get-Content RELEASE_NOTES.md -Raw -Encoding utf8).Trim()
+          Add-Content -Path $env:GITHUB_OUTPUT -Encoding utf8 -Value @(
+            "body<<PAPYX_RELEASE_NOTES", $body, "PAPYX_RELEASE_NOTES"
+          )
+
       # Runs `npm run build` (tsc --noEmit, then vite) before bundling, so a
       # type error stops the release rather than shipping.
       #
@@ -66,9 +79,6 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: Papyx ${{ github.ref_name }}
-          releaseBody: |
-            Papyx pour Windows — installeur `.exe` (NSIS) ou `.msi` ci-dessous.
-
-            Tout le traitement PDF se fait localement, dans l'application.
+          releaseBody: ${{ steps.notes.outputs.body }}
           releaseDraft: false
           prerelease: false

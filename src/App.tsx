@@ -1,14 +1,16 @@
 import { useCallback, useMemo, useState } from "react";
 import { Settings as SettingsIcon, ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Home } from "@/components/Home";
-import { SettingsPanel } from "@/components/Settings";
+import { Workspace } from "@/components/Workspace";
+import { PreviewProvider } from "@/components/Preview";
+import { ToolSidebar } from "@/components/ToolSidebar";
+import { SettingsDialog } from "@/components/Settings";
 import { UpdateChip } from "@/components/UpdateChip";
 import { UpdatePrompt } from "@/components/UpdatePrompt";
 import { WindowControls } from "@/components/WindowControls";
 import { PapyxLogo } from "@/components/icons/PapyxLogo";
 import { Modal } from "@/components/ui/Modal";
-import { PILL_ICON } from "@/components/ui/pill";
+import { Pill } from "@/components/ui/pill";
 import { BTN_PRIMARY, BTN_SECONDARY } from "@/components/ui/styles";
 import { findTool, TOOLS } from "@/components/tools/registry";
 import type { ChainTarget } from "@/components/ResultCard";
@@ -123,92 +125,115 @@ function AppShell() {
 
   return (
     <div className="h-screen bg-bg text-fg flex flex-col">
+      {/* One title bar: the lockup on the left, the window's own buttons on
+          the right. The buttons run the bar's full height and are a little
+          taller than wide (60 x 76): that keeps their glyphs on the logo's
+          centre line *and* hands the top-right corner pixel to Close — the
+          easiest target on the screen, where Windows users throw the pointer
+          to close. Neither may be traded for the other. The whole bar is a
+          drag region except what is clickable; on macOS the left padding
+          clears the traffic lights, in a browser the bar is simply the header. */}
       <header
         data-tauri-drag-region
         className={cn(
-          "flex items-center h-16 flex-shrink-0 select-none",
-          // macOS keeps its native traffic lights top-left, so the header is
-          // padded to clear them; elsewhere we draw our own (WindowControls).
-          isMacOS ? "pl-20" : "pl-7",
+          "flex items-center h-[4.75rem] flex-shrink-0 select-none",
+          isMacOS ? "pl-24" : "pl-6",
         )}
       >
         <div data-tauri-drag-region className="flex items-center gap-3">
+          {/* flex, not the default inline box: an inline button keeps room for
+              a descender under the lockup, which is what sat the badge low. */}
           <button
             type="button"
-            onClick={() =>
-              guard(() => {
-                setShowSettings(false);
-                setSelectedId(null);
-              })
-            }
-            className="pointer-events-auto"
+            onClick={() => guard(() => setSelectedId(null))}
+            className="flex items-center rounded-lg"
             aria-label="Papyx"
           >
-            <PapyxLogo />
+            <PapyxLogo size={19} />
           </button>
-          <span className={cn(PILL_ICON, "bg-badge-bg text-badge-fg")}>
-            <ShieldCheck className="w-3.5 h-3.5" />
+          <Pill
+            icon={<ShieldCheck className="w-3.5 h-3.5" />}
+            className="bg-badge-bg text-badge-fg"
+          >
             100% local
-          </span>
+          </Pill>
         </div>
 
         <div data-tauri-drag-region className="flex-1 self-stretch" />
 
-        <div className="flex items-center gap-3 pr-3">
-          {/* Guarded like every other way out of a finished run: installing an
-              update restarts the app, and an unsaved result would go with it. */}
-          <UpdateChip onOpen={guard} />
-
-          <button
-            type="button"
-            onClick={() => guard(() => setShowSettings((current) => !current))}
-            className={cn(
-              BTN_SECONDARY,
-              showSettings && "border-transparent bg-surface-2 hover:bg-surface-2",
-            )}
-          >
-            <SettingsIcon className="w-4 h-4" />
-            {t("common.settings")}
-          </button>
-        </div>
-
-        {isTauri && !isMacOS && <WindowControls />}
+        {isTauri && !isMacOS ? <WindowControls /> : <div className="w-6" />}
       </header>
 
-      <main className="flex-1 min-h-0 overflow-y-auto">
-        {/* One container for both views, and no `key` on it: keying it would
-            remount the view that is *staying*, and Home holds the open tool,
-            its previews and the result card. */}
-        <div className="mx-auto w-full max-w-4xl px-7 pt-2 pb-[12vh]">
-          {showSettings ? (
-            <SettingsPanel />
-          ) : (
-            <Home
-              tray={tray}
-              dragging={dragging}
-              tool={tool}
-              selectedFiles={selectedFiles}
-              ignored={tool ? tray.files.length - compatible.length : 0}
-              activeId={active?.id ?? null}
-              onActivate={setActiveId}
+      {/* Below the header the window is a fixed frame and nothing scrolls it:
+          the tools on the left, always in the same place, and the workspace.
+          Settings open as a dialog over it, so nothing here ever goes away. */}
+      <div className="flex-1 min-h-0 flex gap-5 px-6 pt-2 pb-6">
+        {/* The tools, and at the foot of the same column the two things that
+            are about the app rather than the work: a waiting update, and
+            Settings. Bottom-left is where a desktop app keeps its gear, and it
+            frees the title bar for the window's own buttons. */}
+        <aside className="w-52 xl:w-60 flex-shrink-0 min-h-0 flex flex-col gap-3">
+          <div className="flex-1 min-h-0">
+            <ToolSidebar
+              files={tray.files}
+              selected={tool?.id ?? null}
               onSelect={(id) =>
                 guard(() => {
                   setSelectedId(id);
                   setActiveId(null);
                 })
               }
-              onClose={() => guard(() => setSelectedId(null))}
-              job={job}
-              options={options}
-              onOptions={onOptions}
-              chain={chain}
-              onChain={onChain}
             />
-          )}
-        </div>
-      </main>
+          </div>
+
+          {/* Guarded like every other way out of a finished run: installing an
+              update restarts the app, and an unsaved result would go with it. */}
+          <div className="empty:hidden">
+            <UpdateChip onOpen={guard} />
+          </div>
+
+          <button
+            type="button"
+            aria-pressed={showSettings}
+            // Not guarded: a dialog over the workspace leaves the result where
+            // it is. Installing an update from inside it is guarded instead.
+            onClick={() => setShowSettings(true)}
+            className={cn(
+              "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors",
+              showSettings
+                ? "bg-surface shadow-card text-fg"
+                : "text-subtle hover:text-fg hover:bg-elevate-2",
+            )}
+          >
+            <SettingsIcon
+              className={cn("w-4 h-4 flex-shrink-0", showSettings ? "text-accent" : "text-muted")}
+            />
+            {t("common.settings")}
+          </button>
+        </aside>
+
+        <main className="flex-1 min-w-0 min-h-0">
+          <Workspace
+            tray={tray}
+            dragging={dragging}
+            tool={tool}
+            selectedFiles={selectedFiles}
+            ignored={tool ? tray.files.length - compatible.length : 0}
+            activeId={active?.id ?? null}
+            onActivate={setActiveId}
+            onClose={() => guard(() => setSelectedId(null))}
+            job={job}
+            options={options}
+            onOptions={onOptions}
+            chain={chain}
+            onChain={onChain}
+          />
+        </main>
+      </div>
 
       <UpdatePrompt />
+
+      {showSettings && <SettingsDialog onClose={() => setShowSettings(false)} guard={guard} />}
 
       {pending && (
         <Modal
@@ -258,7 +283,9 @@ export default function App() {
   return (
     <SettingsProvider>
       <UpdaterProvider>
-        <AppShell />
+        <PreviewProvider>
+          <AppShell />
+        </PreviewProvider>
       </UpdaterProvider>
     </SettingsProvider>
   );

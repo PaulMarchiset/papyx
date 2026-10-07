@@ -6,12 +6,16 @@ interface Props {
   children: React.ReactNode;
 }
 
-/** A titled card. The title sits outside the surface, as in FFkit's panels. */
+/**
+ * A titled card. The title sits outside the surface, in sentence case at
+ * reading size — the website's rule that a label you have to squint at is not
+ * structure, it is a footnote.
+ */
 export function Section({ title, children }: Props) {
   return (
     <div>
       {title && (
-        <h3 className="text-xs font-semibold text-muted uppercase tracking-wide mb-3 px-1">
+        <h3 className="text-sm font-semibold text-fg mb-3 px-1">
           {title}
         </h3>
       )}
